@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 듣기 퀴즈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            touch-action: manipulation;
+        }
+        .quiz-screen { display: none; }
+        .quiz-screen.active { display: block; }
+        .option-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb; /* cool-gray-200 */
+            border-radius: 0.5rem;
+            text-align: left;
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+        .option-btn:hover {
+            border-color: #60a5fa; /* blue-400 */
+            background-color: #eff6ff; /* blue-50 */
+        }
+        .option-btn.selected {
+            border-color: #3b82f6; /* blue-600 */
+            background-color: #dbeafe; /* blue-200 */
+        }
+        .option-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            margin-right: 0.75rem;
+            border: 2px solid #9ca3af; /* cool-gray-400 */
+            border-radius: 9999px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-8">
+
+        <!-- 시작 화면 -->
+        <div id="start-screen" class="quiz-screen active text-center">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">한국어 듣기 퀴즈</h1>
+            <p class="text-center text-slate-500 mb-8">알맞은 답을 고르세요.</p>
+            <button onclick="startQuiz()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                퀴즈 시작하기
+            </button>
+        </div>
+
+        <!-- 퀴즈 화면 -->
+        <div id="quiz-screen" class="quiz-screen">
+            <div class="flex items-center justify-between mb-4">
+                <h2 id="question-title" class="text-xl font-bold text-slate-700"></h2>
+                <div id="quiz-progress" class="text-lg font-semibold text-slate-500"></div>
+            </div>
+             <div id="script-button-container" class="text-right mb-4"></div>
+            <div id="show-options-container" class="mt-8"></div>
+            <div id="options" class="space-y-3 mt-8"></div>
+            <div id="feedback" class="mt-6 text-center text-md min-h-[6rem]"></div>
+        </div>
+
+        <!-- 종료 화면 -->
+        <div id="end-screen" class="quiz-screen text-center">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">퀴즈 완료!</h2>
+            <div class="bg-emerald-50 p-6 rounded-lg mb-6">
+                <p class="text-lg text-slate-600">최종 점수</p>
+                <p id="score" class="text-6xl font-bold text-emerald-500 my-2"></p>
+            </div>
+            <button onclick="startQuiz()" class="w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                다시 풀기
+            </button>
+        </div>
+    </div>
+
+    <!-- Script Modal -->
+    <div id="script-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative animate-fade-in-up">
+            <h3 class="text-2xl font-bold mb-4 text-slate-800">대본</h3>
+            <pre id="script-content" class="bg-slate-100 p-4 rounded text-slate-800 whitespace-pre-wrap text-base md:text-lg leading-relaxed max-h-[60vh] overflow-y-auto"></pre>
+            <button onclick="hideScriptModal()" class="absolute top-3 right-3 text-slate-400 hover:text-slate-800 bg-slate-100 rounded-full p-1 transition">
+                <svg xmlns="http://www.w.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.3s ease-out forwards;
+        }
+    </style>
+
+    <script>
+        const questions = [
+            { number: 1, title: "들은 내용과 같은 것을 고르세요.", options: ["좋아요", "주어요", "추어요", "추워요"], answer: "좋아요", script: "날씨가 좋아요." },
+            { number: 2, title: "들은 내용과 같은 것을 고르세요.", options: ["사셨어요", "쉬었어요", "추웠어요", "시원해요"], answer: "쉬었어요", script: "주말에 좀 쉬었어요." },
+            { number: 3, title: "들은 내용과 같은 것을 고르세요.", options: ["남산에", "다음에", "마음에", "요즘에"], answer: "다음에", script: "다음에 또 올까요?" },
+            { number: 4, title: "들은 대화에 이어질 알맞은 대답을 고르세요.", options: ["시험을 봤어요.", "좀 어려웠어요.", "공부를 많이 했어요.", "시험을 보고 잤어요."], answer: "좀 어려웠어요.", script: "남: 시험이 어땠어요?\n여: ?" },
+            { number: 5, title: "들은 대화에 이어질 알맞은 대답을 고르세요.", options: ["네, 그래서 요즘 자주 와요.", "아니요, 항상 식당에 가요.", "네, 값은 싸지만 맛은 없네요.", "아니요, 저는 집에서 밥을 먹어요."], answer: "네, 그래서 요즘 자주 와요.", script: "여: 이 식당 음식 정말 맛있네요.\n남: ?" },
+            { number: 6, title: "들은 대화에 이어질 알맞은 대답을 고르세요.", options: ["영화 볼까요?", "갈비탕 먹을까요?", "커피도 마셨어요.", "음식이 너무 비싸요."], answer: "영화 볼까요?", script: "남: 밥 먹고 뭐 할까요?\n여: ?" },
+            { number: 7, title: "들은 대화에 이어질 알맞은 대답을 고르세요.", options: ["네, 안 추워요.", "아니요, 눈이 안 와요.", "네, 춥고 눈도 많이 와요.", "아니요, 춥지만 스키를 타요."], answer: "네, 춥고 눈도 많이 와요.", script: "여: 베이징도 요즘 날씨가 추워요?\n남: ?" },
+            { number: 8, title: "들은 대화에 이어질 알맞은 대답을 고르세요.", options: ["네, 한국 노래가 정말 좋아요.", "아니요, 노래방에는 안 가요.", "네, 집에서 텔레비전을 봐요.", "아니요, 한국 뉴스는 안 들어요."], answer: "네, 한국 노래가 정말 좋아요.", script: "남: 한국 노래를 많이 들어요?\n여: ?" },
+            { number: 9, title: "여기는 어디입니까?", options: ["극장", "시장", "식당", "커피숍"], answer: "시장", script: "남: 아주머니, 이게 맛있어요, 저게 맛있어요?\n여: 좀 비싸지만 이 사과가 맛있어요. 이거 사세요.\n남: 네, 그럼 이거 다섯 개 주세요." },
+            { number: 10, title: "여기는 어디입니까?", options: ["교실", "공원", "도서관", "백화점"], answer: "공원", script: "남: 여기 자전거가 있네요. 우리 자전거 탈까요?\n여: 저는 조금 피곤해요.\n남: 그래요? 그럼 좀 쉴까요?\n여: 네. 저기 나무 밑에 의자가 있네요. 우리 저기 앉아요." },
+            { number: 11, title: "무엇에 대해 이야기합니까?", options: ["날씨", "요일", "음식", "가게"], answer: "음식", script: "남: 뭘 먹을까요?\n여: 여기는 냉면이 시원하고 맛있어요.\n남: 그런데 저, 어제 냉면을 먹었어요.\n여: 그래요? 그럼 우리 갈비탕 먹어요." },
+            { number: 12, title: "무엇에 대해 이야기합니까?", options: ["공부", "숙제", "주말", "친구"], answer: "공부", script: "남: 한국어 공부 정말 어렵네요.\n여: 네, 정말 그래요. 우리 내일 도서관에서 같이 공부할까요?\n남: 좋아요. 한국어 책도 읽고 시험공부도 같이 해요." },
+            { number: 13, title: "들은 내용과 같은 것을 고르세요.", options: ["부산은 맑아요.", "부산은 추워요.", "부산은 덥고 비가 와요.", "부산은 비가 안 와요."], answer: "부산은 덥고 비가 와요.", script: "여: 부산은 오늘 날씨가 어때요?\n남: 더워요.\n여: 그래요? 비도 와요?\n남: 네, 비도 많이 와요." },
+            { number: 14, title: "들은 내용과 같은 것을 고르세요.", options: ["영화를 볼 거예요.", "케이크를 살 거예요.", "커피를 마실 거예요.", "표를 살 거예요."], answer: "커피를 마실 거예요.", script: "여1: 어, 이 영화는 표가 없네요.\n여2: 요즘 사람들이 이 영화를 많이 봐요.\n여1: 그럼, 우리 저 영화 볼까요?\n여2: 글쎄요, 우리 영화는 다음에 보고 커피 마셔요.\n여1: 그래요. 커피도 마시고 케이크도 먹어요." },
+            { number: 15, title: "들은 내용과 같은 것을 고르세요.", options: ["스키장에 갈 거예요.", "쇼핑을 할 거예요.", "집에서 쉴 거예요.", "명동에 갈 거예요."], answer: "집에서 쉴 거예요.", script: "여: 주말에 스키장에 갈까요?\n남: 날씨가 너무 추워요. 거기는 눈도 많이 와요.\n여: 그럼 백화점에 갈까요?\n남: 지난 주말에도 쇼핑했어요. 명동에서 가방도 사고 옷도 샀어요.\n여: 그럼 뭘 할까요?\n남: 집에서 쉬어요. 낮잠도 자고.\n여: 그래요, 그럼." },
+            { number: 16, title: "들은 내용과 같은 것을 고르세요.", options: ["떡볶이가 안 매워요.", "떡볶이가 맛이 없어요.", "여자는 떡볶이를 좋아해요.", "남자는 떡볶이를 안 먹어요."], answer: "여자는 떡볶이를 좋아해요.", script: "여: 우리 떡볶이 먹을까요?\n남: 떡볶이 좋아해요?\n여: 네, 아주 좋아해요.\n남: 안 매워요?\n여: 좀 맵지만 정말 맛있어요.\n남: 좋아요. 그럼 떡볶이 먹어요." },
+            { number: 17, title: "들은 내용과 같은 것을 고르세요.", options: ["남자하고 여자는 차를 마셔요.", "여자는 여기에 자주 왔어요.", "인사동은 항상 사람이 없어요.", "남자하고 여자는 그릇을 구경할 거예요."], answer: "남자하고 여자는 그릇을 구경할 거예요.", script: "남: 여기가 인사동이네요.\n여: 와, 정말 사람이 많네요.\n남: 네, 여기는 항상 사람이 많아요.\n여: 저기 찻집이 있네요. 저기에서 차를 마실까요?\n남: 저기는 찻집이 아니에요. 그릇 가게예요.\n여: 아, 그래요? 그럼 우리 그릇 구경 좀 해요.\n남: 좋아요." },
+            { number: 18, title: "들은 내용과 같은 것을 고르세요.", options: ["여자는 농구를 좋아해요.", "여자는 축구를 자주 했어요.", "남자는 주말에 운동을 안 해요.", "남자는 여자와 테니스를 칠 거예요."], answer: "남자는 여자와 테니스를 칠 거예요.", script: "여: 무슨 운동을 좋아해요?\n남: 농구도 좋아하고 축구도 좋아해요.\n여: 그래요? 그럼 운동을 자주 해요?\n남: 그럼요. 친구하고 같이 농구도 하고 주말에는 테니스도 쳐요.\n여: 테니스요? 저도 테니스를 좋아해요.\n남: 그래요? 그럼 이번 주말에 같이 테니스 쳐요.\n여: 네, 좋아요." },
+            { number: 19, title: "들은 내용과 같은 것을 고르세요.", options: ["여자는 오늘 노래방에 갈 수 없어요.", "남자는 오늘 혼자 노래방에 가요.", "여자는 다음에 남자 친구를 만나요.", "여자하고 남자는 오늘 저녁을 같이 먹어요."], answer: "여자는 오늘 노래방에 갈 수 없어요.", script: "남: 오늘 수업 끝나고 뭐 해요? 우리 같이 노래방에 갈까요? 스티븐 씨도 가고 줄리앙 씨도 가요.\n여: 미안하지만 오늘은 남자 친구하고 약속이 있어요.\n남: 그래요? 그럼 다음에 같이 가요.\n여: 네, 다음에는 밥도 같이 먹어요." },
+            { number: 20, title: "들은 내용과 같은 것을 고르세요.", options: ["여자의 고향은 비가 자주 와요.", "여자의 고향은 겨울에 추워요.", "여자는 한국에서 눈을 처음 봤어요.", "여자는 사진 찍는 것을 안 좋아해요."], answer: "여자는 한국에서 눈을 처음 봤어요.", script: "남: 호이엔 씨 고향은 날씨가 어때요?\n여: 더워요. 여름에는 아주 덥고 비도 자주 와요.\n남: 겨울은 없어요?\n여: 아니요. 겨울이 있지만 춥지 않아요. 그래서 눈은 안 와요.\n남: 그럼 한국에서 눈을 처음 봤어요?\n여: 네. 그래서 사진도 많이 찍었어요. 정말 재미있었어요." }
+        ];
+
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const endScreen = document.getElementById('end-screen');
+        const questionTitleEl = document.getElementById('question-title');
+        const progressEl = document.getElementById('quiz-progress');
+        const optionsEl = document.getElementById('options');
+        const feedbackEl = document.getElementById('feedback');
+        const scoreEl = document.getElementById('score');
+        const scriptButtonContainer = document.getElementById('script-button-container');
+        const showOptionsContainer = document.getElementById('show-options-container');
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.quiz-screen').forEach(screen => screen.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+        
+        function startQuiz() {
+            currentQuestions = [...questions]; // 순서대로 문제를 불러옵니다.
+            currentQuestionIndex = 0;
+            score = 0;
+            showScreen('quiz-screen');
+            loadNextQuestion();
+        }
+
+        function loadNextQuestion() {
+            if (currentQuestionIndex >= currentQuestions.length) {
+                showEndScreen();
+                return;
+            }
+            isAnswered = false;
+            feedbackEl.innerHTML = '';
+            scriptButtonContainer.innerHTML = '';
+            showOptionsContainer.innerHTML = '';
+            optionsEl.innerHTML = '';
+            
+            const q = currentQuestions[currentQuestionIndex];
+            questionTitleEl.innerHTML = `<span class="text-slate-500 font-medium mr-2">${q.number}.</span> ${q.title}`;
+            progressEl.textContent = `${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+
+            // '대본 보기' 버튼 항상 표시
+            const scriptButton = document.createElement('button');
+            scriptButton.textContent = '대본 보기';
+            scriptButton.className = "bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 text-sm";
+            scriptButton.onclick = () => showScriptModal(currentQuestionIndex);
+            scriptButtonContainer.appendChild(scriptButton);
+
+            // 4~8번 문제 특별 처리
+            if (q.number >= 4 && q.number <= 8) {
+                optionsEl.style.display = 'none';
+                showOptionsContainer.style.display = 'block';
+                const showButton = document.createElement('button');
+                showButton.textContent = '[보기] 보기';
+                showButton.className = "bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg transition";
+                showButton.onclick = () => {
+                    optionsEl.style.display = 'block';
+                    showOptionsContainer.style.display = 'none';
+                };
+                showOptionsContainer.appendChild(showButton);
+            } else {
+                optionsEl.style.display = 'block';
+                showOptionsContainer.style.display = 'none';
+            }
+            
+            q.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.innerHTML = `<span class="option-num">${index + 1}</span> <span>${option}</span>`;
+                button.onclick = () => checkAnswer(button, option);
+                optionsEl.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedButton, answer) {
+            if (isAnswered) return;
+            isAnswered = true;
+            
+            selectedButton.classList.add('selected');
+            optionsEl.querySelectorAll('button').forEach(b => b.disabled = true);
+
+            const q = currentQuestions[currentQuestionIndex];
+            const isCorrect = answer === q.answer;
+            if (isCorrect) score++;
+
+            showFeedbackAndNextButton(isCorrect, q.answer);
+        }
+
+        function showFeedbackAndNextButton(isCorrect, correctAnswer) {
+            const correctText = `정답! 🎉`;
+            const incorrectText = `오답! 정답은 '${correctAnswer}'입니다.`;
+            
+            feedbackEl.innerHTML = isCorrect 
+                ? `<p class="font-bold text-green-500">${correctText}</p>`
+                : `<p class="font-bold text-red-500">${incorrectText}</p>`;
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '다음 문제 →';
+            nextButton.className = "mt-4 bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-5 rounded-lg transition-transform transform hover:scale-105";
+            nextButton.onclick = () => {
+                currentQuestionIndex++;
+                loadNextQuestion();
+            };
+            feedbackEl.appendChild(nextButton);
+        }
+
+        function showScriptModal(index) {
+            const scriptContent = document.getElementById('script-content');
+            const q = currentQuestions[index];
+            scriptContent.textContent = q.script;
+            document.getElementById('script-modal').classList.remove('hidden');
+        }
+
+        function hideScriptModal() {
+            document.getElementById('script-modal').classList.add('hidden');
+        }
+
+        function showEndScreen() {
+            const percentage = Math.round((score / currentQuestions.length) * 100);
+            scoreEl.textContent = `${percentage}%`;
+            showScreen('end-screen');
+        }
+    </script>
+</body>
+</html>
+
