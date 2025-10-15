@@ -9,14 +9,39 @@
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            touch-action: manipulation; /* Disable double-tap zoom on mobile */
+            touch-action: manipulation; /* 모바일에서 더블 탭 확대 방지 */
         }
+        /* 빈칸 퀴즈 스타일 */
         .quiz-option.selected {
             transform: scale(1.05);
             background-color: #60a5fa; /* blue-400 */
             color: white;
             border-color: #3b82f6; /* blue-600 */
         }
+        .blank-space {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 2px solid #9ca3af; /* gray-400 */
+            text-align: center;
+            padding: 2px 12px;
+            font-weight: 700;
+            color: #3b82f6; /* blue-600 */
+        }
+        /* 반대말 퀴즈 스타일 */
+        .word-button.selected {
+            background-color: #facc15; /* yellow-400 */
+            border-color: #f59e0b; /* amber-500 */
+            transform: scale(1.05);
+        }
+        .word-button.matched {
+            background-color: #4ade80; /* green-400 */
+            border-color: #22c55e; /* green-500 */
+            color: white;
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        /* 공통 애니메이션 */
         .feedback-correct {
             animation: correct-pulse 0.5s ease;
         }
@@ -33,62 +58,68 @@
             10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
             20%, 40%, 60%, 80% { transform: translateX(8px); }
         }
-        .blank-space {
-            display: inline-block;
-            min-width: 80px;
-            border-bottom: 2px solid #9ca3af; /* gray-400 */
-            text-align: center;
-            padding: 2px 12px;
-            font-weight: 700;
-            color: #3b82f6; /* blue-600 */
-        }
     </style>
 </head>
-<body class="bg-slate-100 flex items-center justify-center min-h-screen">
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
 
     <div id="app-container" class="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-8 transform transition-all">
 
-        <!-- Start Screen -->
+        <!-- 시작 화면 -->
         <div id="start-screen">
             <h1 class="text-3xl font-bold text-center text-slate-800 mb-2">한국어 어휘 퀴즈</h1>
-            <p class="text-center text-slate-500 mb-8">복습할 과를 선택하세요.</p>
+            <p class="text-center text-slate-500 mb-8">퀴즈 유형을 선택하세요.</p>
             <div class="space-y-4">
-                <button onclick="startQuiz(7)" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
-                    7과: 날씨와 계절
-                </button>
-                <button onclick="startQuiz(8)" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
-                    8과: 활동과 운동
-                </button>
-                 <button onclick="startQuiz('all')" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-4 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
-                    7과 + 8과 모두
-                </button>
+                <div class="border-b pb-4">
+                    <h2 class="font-semibold text-slate-600 mb-2 text-center">📝 빈칸 채우기</h2>
+                     <button onclick="startFillInTheBlankQuiz(7)" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">7과: 날씨와 계절</button>
+                    <button onclick="startFillInTheBlankQuiz(8)" class="mt-2 w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">8과: 활동과 운동</button>
+                    <button onclick="startFillInTheBlankQuiz('all')" class="mt-2 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">7과 + 8과 모두</button>
+                </div>
+                <div>
+                     <h2 class="font-semibold text-slate-600 mb-2 text-center">🔄 반대말 찾기</h2>
+                     <button onclick="startAntonymQuiz()" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">시작하기</button>
+                </div>
             </div>
         </div>
 
-        <!-- Quiz Screen -->
-        <div id="quiz-screen" class="hidden">
+        <!-- 빈칸 채우기 퀴즈 화면 -->
+        <div id="fill-in-the-blank-screen" class="hidden">
             <div class="flex justify-between items-center mb-6">
                 <h2 id="quiz-title" class="text-2xl font-bold text-slate-700"></h2>
                 <div id="progress" class="text-lg font-semibold text-slate-500"></div>
             </div>
-
             <div class="bg-slate-50 p-6 rounded-lg mb-6 min-h-[100px] flex items-center justify-center">
                 <p id="sentence" class="text-2xl md:text-3xl text-center leading-relaxed font-medium text-slate-800"></p>
             </div>
-
-            <div id="options" class="grid grid-cols-2 gap-4">
-                <!-- Options will be dynamically inserted here -->
-            </div>
-            
+            <div id="options" class="grid grid-cols-2 gap-4"></div>
             <div id="feedback" class="mt-6 text-center text-xl font-bold h-8"></div>
         </div>
+        
+        <!-- 반대말 찾기 퀴즈 화면 -->
+        <div id="antonym-quiz-screen" class="hidden">
+             <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-slate-700">반대말 짝 맞추기</h2>
+                <div id="antonym-progress" class="text-lg font-semibold text-slate-500"></div>
+            </div>
+            <p class="text-center text-slate-500 mb-6">서로 반대되는 단어를 하나씩 클릭하여 연결하세요.</p>
+            <div id="antonym-feedback" class="text-center h-6 mb-4 text-lg font-semibold"></div>
+            <div class="flex justify-between gap-4">
+                <div id="left-column" class="flex-1 flex flex-col gap-3"></div>
+                <div id="right-column" class="flex-1 flex flex-col gap-3"></div>
+            </div>
+        </div>
 
-        <!-- End Screen -->
+
+        <!-- 종료 화면 -->
         <div id="end-screen" class="hidden text-center">
-            <h2 class="text-3xl font-bold text-slate-800 mb-4">퀴즈 완료!</h2>
-            <div class="bg-blue-50 p-6 rounded-lg mb-6">
+            <h2 id="end-title" class="text-3xl font-bold text-slate-800 mb-4">퀴즈 완료!</h2>
+            <div id="score-container" class="bg-blue-50 p-6 rounded-lg mb-6">
                 <p class="text-lg text-slate-600">최종 점수</p>
                 <p id="score" class="text-6xl font-bold text-blue-500 my-2"></p>
+            </div>
+            <div id="antonym-end-message" class="hidden bg-purple-50 p-8 rounded-lg mb-6">
+                <p class="text-4xl">🎉</p>
+                <p class="text-2xl font-bold text-purple-600 mt-2">모두 맞혔어요! 참 잘했어요!</p>
             </div>
             <button onclick="restartApp()" class="w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
                 처음으로 돌아가기
@@ -97,66 +128,86 @@
     </div>
 
     <script>
-        // --- Data ---
+        // --- 데이터 ---
         const vocabulary = {
             7: [
-                { korean: "눈이 오다", english: "to snow", sentence: "하늘에서 하얀 {blank}." },
-                { korean: "춥다", english: "cold", sentence: "겨울은 날씨가 {blank}." },
-                { korean: "덥다", english: "hot", sentence: "여름은 너무 {blank}." },
-                { korean: "맑다", english: "clear/sunny", sentence: "오늘은 하늘이 아주 {blank}." },
-                { korean: "비가 오다", english: "to rain", sentence: "우산을 챙기세요. 밖에 {blank}." },
-                { korean: "시원하다", english: "cool", sentence: "가을 바람은 정말 {blank}." },
-                { korean: "흐리다", english: "cloudy", sentence: "날씨가 {blank}." },
-                { korean: "봄", english: "spring", sentence: "꽃이 피는 계절은 {blank}입니다." },
-                { korean: "여름", english: "summer", sentence: "수영은 {blank}에 자주 해요." },
-                { korean: "가을", english: "autumn", sentence: "{blank}은 독서의 계절이에요." },
-                { korean: "겨울", english: "winter", sentence: "스키는 {blank}에 타요." },
-                { korean: "가볍다", english: "lightweight", sentence: "이 가방은 정말 {blank}." },
-                { korean: "쉽다", english: "easy", sentence: "한국어 공부는 {blank}." },
-                { korean: "좋다", english: "good", sentence: "오늘 기분이 아주 {blank}." },
-                { korean: "어렵다", english: "difficult", sentence: "이 수학 문제는 너무 {blank}." },
-                { korean: "맵다", english: "spicy", sentence: "김치찌개가 조금 {blank}." },
+                { korean: "눈이 오다", sentence: "하늘에서 하얀 {blank}." },
+                { korean: "춥다", sentence: "겨울은 날씨가 {blank}." },
+                { korean: "덥다", sentence: "여름은 너무 {blank}." },
+                { korean: "맑다", sentence: "오늘은 하늘이 아주 {blank}." },
+                { korean: "비가 오다", sentence: "우산을 챙기세요. 밖에 {blank}." },
+                { korean: "시원하다", sentence: "가을 바람은 정말 {blank}." },
+                { korean: "흐리다", sentence: "날씨가 {blank}." },
+                { korean: "봄", sentence: "꽃이 피는 계절은 {blank}입니다." },
+                { korean: "여름", sentence: "수영은 {blank}에 자주 해요." },
+                { korean: "가을", sentence: "{blank}은 독서의 계절이에요." },
+                { korean: "겨울", sentence: "스키는 {blank}에 타요." },
+                { korean: "가볍다", sentence: "이 가방은 정말 {blank}." },
+                { korean: "쉽다", sentence: "한국어 공부는 {blank}." },
+                { korean: "좋다", sentence: "오늘 기분이 아주 {blank}." },
+                { korean: "어렵다", sentence: "이 수학 문제는 너무 {blank}." },
+                { korean: "맵다", sentence: "김치찌개가 조금 {blank}." },
             ],
             8: [
-                { korean: "게임을 하다", english: "to play a game", sentence: "주말에 친구들과 {blank}." },
-                { korean: "골프를 치다", english: "to play golf", sentence: "아버지는 {blank}를 좋아해요." },
-                { korean: "기타를 치다", english: "to play the guitar", sentence: "저는 노래하며 {blank}." },
-                { korean: "당구를 치다", english: "to play billiards", sentence: "친구와 같이 {blank}." },
-                { korean: "스케이트를 타다", english: "to skate", sentence: "겨울에 아이스링크에서 {blank}." },
-                { korean: "스키를 타다", english: "to ski", sentence: "겨울 방학에 {blank}." },
-                { korean: "자전거를 타다", english: "to ride a bike", sentence: "공원에서 {blank}." },
-                { korean: "축구를 하다", english: "to play soccer", sentence: "운동장에서 아이들이 {blank}." },
-                { korean: "테니스를 치다", english: "to play tennis", sentence: "저는 {blank}를 잘 못해요." },
-                { korean: "피아노를 치다", english: "to play the piano", sentence: "어렸을 때부터 {blank}." },
-                { korean: "낮잠을 자다", english: "to take a nap", sentence: "점심을 먹고 {blank}." },
-                { korean: "노래방에 가다", english: "to go to karaoke", sentence: "스트레스를 풀러 {blank}." },
-                { korean: "등산을 하다", english: "to hike", sentence: "주말마다 산에 가서 {blank}." },
-                { korean: "여행을 하다", english: "to travel", sentence: "방학에 제주도로 {blank}." },
-                { korean: "찜질방에 가다", english: "to go to a jjimjilbang", sentence: "피곤할 때 {blank}." },
+                { korean: "게임을 하다", sentence: "주말에 친구들과 {blank}." },
+                { korean: "골프를 치다", sentence: "아버지는 {blank}를 좋아해요." },
+                { korean: "기타를 치다", sentence: "저는 노래하며 {blank}." },
+                { korean: "당구를 치다", sentence: "친구와 같이 {blank}." },
+                { korean: "스케이트를 타다", sentence: "겨울에 아이스링크에서 {blank}." },
+                { korean: "스키를 타다", sentence: "겨울 방학에 {blank}." },
+                { korean: "자전거를 타다", sentence: "공원에서 {blank}." },
+                { korean: "축구를 하다", sentence: "운동장에서 아이들이 {blank}." },
+                { korean: "테니스를 치다", sentence: "저는 {blank}를 잘 못해요." },
+                { korean: "피아노를 치다", sentence: "어렸을 때부터 {blank}." },
+                { korean: "낮잠을 자다", sentence: "점심을 먹고 {blank}." },
+                { korean: "노래방에 가다", sentence: "스트레스를 풀러 {blank}." },
+                { korean: "등산을 하다", sentence: "주말마다 산에 가서 {blank}." },
+                { korean: "여행을 하다", sentence: "방학에 제주도로 {blank}." },
+                { korean: "찜질방에 가다", sentence: "피곤할 때 {blank}." },
             ]
         };
 
-        // --- State ---
+        const antonyms = [
+            { word1: "덥다", word2: "춥다" },
+            { word1: "쉽다", word2: "어렵다" },
+            { word1: "맑다", word2: "흐리다" },
+            { word1: "좋다", word2: "나쁘다" }, // '나쁘다' 추가
+            { word1: "가볍다", word2: "무겁다" }, // '무겁다' 추가
+        ];
+
+        // --- 상태 변수 ---
         let currentQuizData = [];
         let currentQuestionIndex = 0;
         let score = 0;
-        let selectedOption = null;
         let isAnswered = false;
 
-        // --- Elements ---
+        let selectedAntonymWord = null;
+        let matchedPairs = 0;
+        
+        // --- DOM 요소 ---
         const startScreen = document.getElementById('start-screen');
-        const quizScreen = document.getElementById('quiz-screen');
         const endScreen = document.getElementById('end-screen');
+
+        // 빈칸 퀴즈 요소
+        const fillInTheBlankScreen = document.getElementById('fill-in-the-blank-screen');
         const quizTitle = document.getElementById('quiz-title');
         const progressEl = document.getElementById('progress');
         const sentenceEl = document.getElementById('sentence');
         const optionsEl = document.getElementById('options');
         const feedbackEl = document.getElementById('feedback');
         const finalScoreEl = document.getElementById('score');
+        const scoreContainer = document.getElementById('score-container');
 
-        // --- Functions ---
-        
-        // Fisher-Yates shuffle algorithm
+        // 반대말 퀴즈 요소
+        const antonymQuizScreen = document.getElementById('antonym-quiz-screen');
+        const leftColumn = document.getElementById('left-column');
+        const rightColumn = document.getElementById('right-column');
+        const antonymProgress = document.getElementById('antonym-progress');
+        const antonymFeedback = document.getElementById('antonym-feedback');
+        const antonymEndMessage = document.getElementById('antonym-end-message');
+
+
+        // --- 공통 함수 ---
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -164,8 +215,16 @@
             }
             return array;
         }
-        
-        function startQuiz(lesson) {
+
+        function restartApp() {
+            endScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            fillInTheBlankScreen.classList.add('hidden');
+            antonymQuizScreen.classList.add('hidden');
+        }
+
+        // --- 빈칸 채우기 퀴즈 로직 ---
+        function startFillInTheBlankQuiz(lesson) {
             if (lesson === 'all') {
                 currentQuizData = shuffle([...vocabulary[7], ...vocabulary[8]]);
                 quizTitle.textContent = "종합 퀴즈";
@@ -179,40 +238,31 @@
             isAnswered = false;
 
             startScreen.classList.add('hidden');
-            quizScreen.classList.remove('hidden');
-            endScreen.classList.add('hidden');
+            fillInTheBlankScreen.classList.remove('hidden');
             
-            loadQuestion();
+            loadFillInTheBlankQuestion();
         }
 
-        function loadQuestion() {
+        function loadFillInTheBlankQuestion() {
             isAnswered = false;
-            selectedOption = null;
             feedbackEl.textContent = '';
             
             if (currentQuestionIndex >= currentQuizData.length) {
-                showEndScreen();
+                showEndScreen(false); // isAntonymQuiz = false
                 return;
             }
 
             progressEl.textContent = `${currentQuestionIndex + 1} / ${currentQuizData.length}`;
             const question = currentQuizData[currentQuestionIndex];
-
-            sentenceEl.innerHTML = question.sentence.replace('{blank}', `<span class="blank-space" id="blank-space">?</span>`);
+            sentenceEl.innerHTML = question.sentence.replace('{blank}', `<span class="blank-space">?</span>`);
             
-            // --- Generate options ---
             const correctAnswer = question.korean;
             const options = [correctAnswer];
-            
-            // Get all vocab words from the same lesson or combined list
             const allWords = currentQuizData.map(item => item.korean);
             
-            // Get random incorrect options
             while (options.length < 4) {
                 const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
-                if (!options.includes(randomWord)) {
-                    options.push(randomWord);
-                }
+                if (!options.includes(randomWord)) options.push(randomWord);
             }
 
             optionsEl.innerHTML = '';
@@ -220,67 +270,173 @@
                 const button = document.createElement('button');
                 button.textContent = option;
                 button.classList.add('quiz-option', 'w-full', 'p-4', 'border-2', 'rounded-lg', 'text-lg', 'font-semibold', 'transition-all', 'duration-200', 'shadow-sm', 'bg-white', 'text-slate-700', 'border-slate-300', 'hover:bg-slate-50', 'hover:border-blue-400');
-                button.onclick = () => selectOption(button);
+                button.onclick = () => checkFillInTheBlankAnswer(button, option);
                 optionsEl.appendChild(button);
             });
         }
 
-        function selectOption(optionElement) {
-            if (isAnswered) return;
-
-            // Deselect previous option
-            if (selectedOption) {
-                selectedOption.classList.remove('selected');
-            }
-            // Select new option
-            selectedOption = optionElement;
-            selectedOption.classList.add('selected');
-            
-            checkAnswer(selectedOption.textContent);
-        }
-
-        function checkAnswer(answer) {
+        function checkFillInTheBlankAnswer(buttonEl, answer) {
             if (isAnswered) return;
             isAnswered = true;
 
             const correctAnswer = currentQuizData[currentQuestionIndex].korean;
-            const blankSpace = document.getElementById('blank-space');
+            const blankSpace = sentenceEl.querySelector('.blank-space');
+
+            // 모든 옵션 선택 해제 및 비활성화
+            document.querySelectorAll('.quiz-option').forEach(btn => {
+                btn.classList.remove('selected');
+                btn.disabled = true;
+            });
+            buttonEl.classList.add('selected'); // 선택한 것만 표시
 
             if (answer === correctAnswer) {
                 score++;
                 feedbackEl.textContent = '정답입니다! 🎉';
-                feedbackEl.classList.remove('text-red-500');
                 feedbackEl.classList.add('text-green-500');
                 blankSpace.textContent = correctAnswer;
                 blankSpace.classList.add('feedback-correct', 'text-green-600', 'border-green-500');
-                blankSpace.classList.remove('text-blue-600', 'border-gray-400');
             } else {
                 feedbackEl.textContent = `틀렸어요. 정답: ${correctAnswer}`;
-                feedbackEl.classList.remove('text-green-500');
                 feedbackEl.classList.add('text-red-500');
                 blankSpace.textContent = answer;
                 blankSpace.classList.add('feedback-incorrect', 'text-red-600', 'border-red-500');
-                blankSpace.classList.remove('text-blue-600', 'border-gray-400');
             }
 
             setTimeout(() => {
                 currentQuestionIndex++;
-                loadQuestion();
+                loadFillInTheBlankQuestion();
             }, 2000);
         }
-        
-        function showEndScreen() {
-            quizScreen.classList.add('hidden');
-            endScreen.classList.remove('hidden');
-            const percentage = Math.round((score / currentQuizData.length) * 100);
-            finalScoreEl.textContent = `${percentage}%`;
+
+        // --- 반대말 찾기 퀴즈 로직 ---
+        function startAntonymQuiz() {
+            startScreen.classList.add('hidden');
+            antonymQuizScreen.classList.remove('hidden');
+
+            selectedAntonymWord = null;
+            matchedPairs = 0;
+            antonymFeedback.textContent = '';
+            antonymProgress.textContent = `맞춘 개수: 0 / ${antonyms.length}`;
+            
+            const shuffledAntonyms = shuffle([...antonyms]);
+            const col1Words = shuffle(shuffledAntonyms.map(pair => pair.word1));
+            const col2Words = shuffle(shuffledAntonyms.map(pair => pair.word2));
+
+            renderWordButtons(leftColumn, col1Words);
+            renderWordButtons(rightColumn, col2Words);
         }
 
-        function restartApp() {
-            endScreen.classList.add('hidden');
-            startScreen.classList.remove('hidden');
+        function renderWordButtons(columnEl, words) {
+            columnEl.innerHTML = '';
+            words.forEach(word => {
+                const button = document.createElement('button');
+                button.textContent = word;
+                button.dataset.word = word;
+                button.classList.add('word-button', 'w-full', 'p-3', 'border-2', 'rounded-lg', 'text-lg', 'font-semibold', 'transition-all', 'duration-200', 'shadow-sm', 'bg-white', 'text-slate-700', 'border-slate-300');
+                button.onclick = () => handleWordSelection(button);
+                columnEl.appendChild(button);
+            });
+        }
+
+        function handleWordSelection(buttonEl) {
+            if (buttonEl.classList.contains('matched')) return;
+
+            if (!selectedAntonymWord) {
+                selectedAntonymWord = buttonEl;
+                buttonEl.classList.add('selected');
+            } else {
+                // 이미 선택된 단어와 같은 단어 클릭 시 선택 취소
+                if (selectedAntonymWord === buttonEl) {
+                    selectedAntonymWord.classList.remove('selected');
+                    selectedAntonymWord = null;
+                    return;
+                }
+                
+                // 같은 열에 있는 단어를 클릭했을 때, 선택 변경
+                if (selectedAntonymWord.parentElement === buttonEl.parentElement) {
+                    selectedAntonymWord.classList.remove('selected');
+                    selectedAntonymWord = buttonEl;
+                    buttonEl.classList.add('selected');
+                    return;
+                }
+
+                checkAntonymMatch(selectedAntonymWord, buttonEl);
+            }
+        }
+        
+        function isAntonymPair(word1, word2) {
+            return antonyms.some(pair => 
+                (pair.word1 === word1 && pair.word2 === word2) || 
+                (pair.word1 === word2 && pair.word2 === word1)
+            );
+        }
+
+        function checkAntonymMatch(btn1, btn2) {
+            const word1 = btn1.dataset.word;
+            const word2 = btn2.dataset.word;
+
+            // 정답 확인 전 모든 버튼 클릭 방지
+            document.querySelectorAll('.word-button').forEach(b => b.disabled = true);
+
+            if (isAntonymPair(word1, word2)) {
+                // 정답일 경우
+                matchedPairs++;
+                antonymProgress.textContent = `맞춘 개수: ${matchedPairs} / ${antonyms.length}`;
+                antonymFeedback.textContent = '정답! ✨';
+                antonymFeedback.classList.add('text-green-500');
+                antonymFeedback.classList.remove('text-red-500');
+
+                btn1.classList.remove('selected');
+                btn1.classList.add('matched');
+                btn2.classList.add('matched');
+                
+                selectedAntonymWord = null;
+
+                if (matchedPairs === antonyms.length) {
+                    setTimeout(() => showEndScreen(true), 1000); // isAntonymQuiz = true
+                }
+            } else {
+                // 오답일 경우
+                antonymFeedback.textContent = '다시 시도해보세요.';
+                antonymFeedback.classList.add('text-red-500');
+                antonymFeedback.classList.remove('text-green-500');
+
+                btn1.classList.add('feedback-incorrect');
+                btn2.classList.add('feedback-incorrect');
+                
+                setTimeout(() => {
+                    btn1.classList.remove('feedback-incorrect', 'selected');
+                    btn2.classList.remove('selected');
+                    selectedAntonymWord = null;
+                }, 600);
+            }
+            
+            // 0.6초 후 버튼 다시 활성화
+            setTimeout(() => {
+                 document.querySelectorAll('.word-button:not(.matched)').forEach(b => b.disabled = false);
+            }, 600);
+        }
+        
+        // --- 종료 화면 로직 ---
+        function showEndScreen(isAntonymQuiz) {
+            fillInTheBlankScreen.classList.add('hidden');
+            antonymQuizScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+
+            if (isAntonymQuiz) {
+                scoreContainer.classList.add('hidden');
+                antonymEndMessage.classList.remove('hidden');
+                document.getElementById('end-title').textContent = '도전 완료!';
+            } else {
+                scoreContainer.classList.remove('hidden');
+                antonymEndMessage.classList.add('hidden');
+                document.getElementById('end-title').textContent = '퀴즈 완료!';
+                const percentage = Math.round((score / currentQuizData.length) * 100);
+                finalScoreEl.textContent = `${percentage}%`;
+            }
         }
 
     </script>
 </body>
 </html>
+
