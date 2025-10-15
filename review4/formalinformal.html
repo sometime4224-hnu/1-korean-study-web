@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>해요체 vs 하십시오체 퀴즈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            touch-action: manipulation;
+        }
+        .quiz-screen { display: none; }
+        .quiz-screen.active { display: block; }
+        .dialogue-box {
+            border: 2px solid #e5e7eb;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-8 transform transition-all">
+
+        <!-- 시작 화면 -->
+        <div id="start-screen" class="quiz-screen active text-center">
+            <h1 class="text-3xl font-bold text-center text-slate-800 mb-2">해요체 vs. 하십시오체</h1>
+            <p class="text-center text-slate-500 mb-8">대화 상황에 맞는 문장 끝맺음을 골라보세요.</p>
+            <button onclick="startQuiz()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                퀴즈 시작하기
+            </button>
+        </div>
+        
+        <!-- 퀴즈 화면 -->
+        <div id="quiz-screen" class="quiz-screen">
+             <div class="flex items-center justify-between mb-6">
+                 <h2 class="text-2xl font-bold text-slate-700">퀴즈</h2>
+                 <div id="quiz-progress" class="text-lg font-semibold text-slate-500"></div>
+            </div>
+            <div class="dialogue-box">
+                <p id="speaker-a" class="text-lg mb-2"><span class="font-bold text-blue-600">A:</span> </p>
+                <p id="speaker-b" class="text-lg"><span class="font-bold text-emerald-600">B:</span> </p>
+            </div>
+            <div id="options" class="grid grid-cols-1 gap-4"></div>
+            <div id="feedback" class="mt-6 text-center text-md min-h-[6rem]"></div>
+        </div>
+
+        <!-- 종료 화면 -->
+        <div id="end-screen" class="quiz-screen text-center">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">퀴즈 완료!</h2>
+            <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                <p class="text-lg text-slate-600">최종 점수</p>
+                <p id="score" class="text-6xl font-bold text-blue-500 my-2"></p>
+            </div>
+            <button onclick="startQuiz()" class="w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                다시 풀기
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 데이터 ---
+        const questions = [
+            {
+                dialogue: { a: "오늘 무슨 요일입니까?", b: "오늘은 {blank}." },
+                options: ["월요일이에요", "월요일입니다"],
+                answer: "월요일입니다",
+                explanation: "A가 격식체('-ㅂ니까?')로 물었으므로, B도 격식체('-ㅂ니다')로 대답하는 것이 자연스러워요."
+            },
+            {
+                dialogue: { a: "실례지만, 여기가 어디예요?", b: "여기는 {blank}." },
+                options: ["시청입니다", "시청이에요"],
+                answer: "시청이에요",
+                explanation: "A가 비격식체('-예요?')로 물었으므로, B도 비격식체('-이에요')로 대답하는 것이 자연스러워요."
+            },
+            {
+                dialogue: { a: "어제 저녁에 무엇을 드셨습니까?", b: "저는 김치찌개를 {blank}." },
+                options: ["먹었어요", "먹었습니다"],
+                answer: "먹었습니다",
+                explanation: "A가 격식체('-었습니까?')로 물었으므로, B도 격식체('-었습니다')로 대답하는 것이 자연스러워요."
+            },
+            {
+                dialogue: { a: "오늘 날씨가 어때요?", b: "날씨가 아주 {blank}." },
+                options: ["좋아요", "좋습니다"],
+                answer: "좋아요",
+                explanation: "A가 비격식체('-아요?')로 물었으므로, B도 비격식체('-아요')로 대답하는 것이 자연스러워요."
+            },
+            {
+                dialogue: { a: "가방이 아주 무거워 보입니다.", b: "네, 정말 {blank}." },
+                options: ["무거워요", "무겁습니다"],
+                answer: "무겁습니다",
+                explanation: "A가 격식체('-ㅂ니다')로 말했으므로, B도 격식체('-ㅂ니다')로 대답하는 것이 자연스러워요."
+            },
+            {
+                dialogue: { a: "A: 영화 볼까요?", b: "B: 네, 영화 {blank}." },
+                options: ["봐요", "봅니다"],
+                answer: "봐요",
+                explanation: "친근하게 제안하는 '-ㄹ까요?'는 보통 비격식적인 상황에서 사용되므로, '-아요/어요'로 대답하는 것이 자연스러워요."
+            },
+            {
+                dialogue: { a: "지금 어디에 갑니까?", b: "도서관에 {blank}." },
+                options: ["가요", "갑니다"],
+                answer: "갑니다",
+                explanation: "A가 격식체('-ㅂ니까?')로 물었으므로, B도 격식체('-ㅂ니다')로 대답하는 것이 자연스러워요."
+            },
+            {
+                dialogue: { a: "주말에 보통 뭐 해요?", b: "저는 집에서 {blank}." },
+                options: ["쉬어요", "쉽니다"],
+                answer: "쉬어요",
+                explanation: "A가 비격식체('-해요?')로 물었으므로, B도 비격식체('-어요')로 대답하는 것이 자연스러워요."
+            },
+            {
+                dialogue: { a: "이름이 무엇입니까?", b: "제 이름은 김민준{blank}." },
+                options: ["이에요", "입니다"],
+                answer: "입니다",
+                explanation: "A가 격식체('-ㅂ니까?')로 물었으므로, B도 격식체('-입니다')로 대답하는 것이 자연스러워요."
+            },
+            {
+                dialogue: { a: "교실에 학생이 있어요?", b: "네, {blank}." },
+                options: ["있어요", "있습니다"],
+                answer: "있어요",
+                explanation: "A가 비격식체('-어요?')로 물었으므로, B도 비격식체('-어요')로 대답하는 것이 자연스러워요."
+            },
+            {
+                dialogue: { a: "이 사과 얼마입니까?", b: "천 원{blank}." },
+                options: ["이에요", "입니다"],
+                answer: "입니다",
+                explanation: "A가 격식체('-ㅂ니까?')로 물었으므로, B도 격식체('-입니다')로 대답하는 것이 자연스러워요."
+            },
+            {
+                dialogue: { a: "커피 마실래요?", b: "네, {blank}." },
+                options: ["좋아요", "좋습니다"],
+                answer: "좋아요",
+                explanation: "친근하게 권유하는 '-ㄹ래요?'는 비격식적인 상황이므로, '-아요'로 대답하는 것이 자연스러워요."
+            }
+        ];
+
+        // --- 상태 변수 ---
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        // --- DOM 요소 ---
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const endScreen = document.getElementById('end-screen');
+        const progressEl = document.getElementById('quiz-progress');
+        const scoreEl = document.getElementById('score');
+        const speakerA_El = document.getElementById('speaker-a');
+        const speakerB_El = document.getElementById('speaker-b');
+        const optionsEl = document.getElementById('options');
+        const feedbackEl = document.getElementById('feedback');
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.quiz-screen').forEach(screen => screen.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startQuiz() {
+            currentQuestions = shuffle([...questions]);
+            currentQuestionIndex = 0;
+            score = 0;
+            isAnswered = false;
+            loadNextQuestion();
+            showScreen('quiz-screen');
+        }
+
+        function loadNextQuestion() {
+            if (currentQuestionIndex >= currentQuestions.length) {
+                showEndScreen();
+                return;
+            }
+            isAnswered = false;
+            feedbackEl.innerHTML = '';
+            progressEl.textContent = `${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+            
+            const q = currentQuestions[currentQuestionIndex];
+            
+            speakerA_El.innerHTML = `<span class="font-bold text-blue-600">A:</span> ${q.dialogue.a}`;
+            speakerB_El.innerHTML = `<span class="font-bold text-emerald-600">B:</span> ${q.dialogue.b.replace('{blank}', `<span class="inline-block min-w-[5rem] text-center border-b-2 border-slate-400 font-bold">?</span>`)}`;
+            
+            optionsEl.innerHTML = '';
+            shuffle([...q.options]).forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = "w-full p-4 border-2 rounded-lg text-lg font-semibold transition-all duration-200 shadow-sm bg-white text-slate-700 border-slate-300 hover:border-blue-400";
+                button.onclick = () => checkAnswer(option);
+                optionsEl.appendChild(button);
+            });
+        }
+
+        function checkAnswer(answer) {
+            if (isAnswered) return;
+            isAnswered = true;
+            optionsEl.querySelectorAll('button').forEach(b => {
+                b.disabled = true;
+                if (b.textContent === answer) {
+                    b.classList.add('bg-blue-100', 'border-blue-400');
+                }
+            });
+
+            const q = currentQuestions[currentQuestionIndex];
+            const isCorrect = answer === q.answer;
+            if (isCorrect) score++;
+
+            showFeedbackAndNextButton(isCorrect, q.explanation);
+        }
+
+        function showFeedbackAndNextButton(isCorrect, explanation) {
+            const correctText = `정답! 🎉 ${explanation}`;
+            const incorrectText = `오답! ${explanation}`;
+            
+            feedbackEl.innerHTML = isCorrect 
+                ? `<p class="font-bold text-green-500">${correctText}</p>`
+                : `<p class="font-bold text-red-500">${incorrectText}</p>`;
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '다음 문제 →';
+            nextButton.className = "mt-4 bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-lg transition-transform transform hover:scale-105";
+            nextButton.onclick = () => {
+                currentQuestionIndex++;
+                loadNextQuestion();
+            };
+            feedbackEl.appendChild(nextButton);
+        }
+
+        function showEndScreen() {
+            const percentage = currentQuestions.length > 0 ? Math.round((score / currentQuestions.length) * 100) : 0;
+            scoreEl.textContent = `${percentage}%`;
+            showScreen('end-screen');
+        }
+
+    </script>
+</body>
+</html>
+
