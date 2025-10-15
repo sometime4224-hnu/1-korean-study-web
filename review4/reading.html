@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 읽기/쓰기 퀴즈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            touch-action: manipulation;
+        }
+        .quiz-screen { display: none; }
+        .quiz-screen.active { display: block; }
+        .option-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-size: 1.125rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .option-btn:hover {
+            border-color: #60a5fa;
+            background-color: #eff6ff;
+        }
+        .option-btn.selected {
+            border-color: #3b82f6;
+            background-color: #dbeafe;
+        }
+        .emoji-option {
+            font-size: 3rem;
+        }
+        .scramble-word {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        #scramble-answer-box {
+            min-height: 4rem;
+            border-style: dashed;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-8">
+
+        <!-- 시작 화면 -->
+        <div id="start-screen" class="quiz-screen active text-center">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">한국어 읽기/쓰기 퀴즈</h1>
+            <p class="text-center text-slate-500 mb-8">알맞은 답을 고르세요.</p>
+            <button onclick="startQuiz()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                퀴즈 시작하기
+            </button>
+        </div>
+
+        <!-- 퀴즈 화면 -->
+        <div id="quiz-screen" class="quiz-screen">
+            <div class="flex items-center justify-between mb-4">
+                <h2 id="question-title" class="text-xl font-bold text-slate-700"></h2>
+                <div id="quiz-progress" class="text-lg font-semibold text-slate-500"></div>
+            </div>
+            <div id="question-content" class="mt-6"></div>
+            <div id="feedback" class="mt-6 text-center text-md min-h-[6rem]"></div>
+        </div>
+
+        <!-- 종료 화면 -->
+        <div id="end-screen" class="quiz-screen text-center">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">퀴즈 완료!</h2>
+            <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                <p class="text-lg text-slate-600">최종 점수</p>
+                <p id="score" class="text-6xl font-bold text-blue-500 my-2"></p>
+            </div>
+            <button onclick="startQuiz()" class="w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                다시 풀기
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // 1-2: 이모지 고르기
+            { number: 1, type: 'emoji', title: "다음과 관계있는 것을 고르세요.", keyword: "농구", options: ["🏃", "🎾", "🚲", "🏀"], answer: "🏀" },
+            { number: 2, type: 'emoji', title: "다음과 관계있는 것을 고르세요.", keyword: "등산", options: ["🚶", "🎸", "🏃", "⛷️"], answer: "🚶" },
+            // 3-5: 빈칸 채우기
+            { number: 3, type: 'choice', title: "빈칸에 가장 알맞은 것을 고르세요.", questionText: "여름입니다. 날씨가 ( ).", options: ["춥습니다", "덥습니다", "복잡합니다", "눈이 옵니다"], answer: "덥습니다" },
+            { number: 4, type: 'choice', title: "빈칸에 가장 알맞은 것을 고르세요.", questionText: "일요일이에요. 집에서 ( ).", options: ["산책해요", "등산해요", "여행해요", "낮잠을 자요"], answer: "낮잠을 자요" },
+            { number: 5, type: 'choice', title: "빈칸에 가장 알맞은 것을 고르세요.", questionText: "김치를 안 먹어요. 김치가 ( ).", options: ["매워요", "가벼워요", "복잡해요", "어려워요"], answer: "매워요" },
+            // 6-7: 주제 고르기
+            { number: 6, type: 'choice', title: "무엇에 대한 이야기입니까?", questionText: "저는 금요일에 테니스를 칩니다. 그리고 자전거를 탑니다.", options: ["차", "운동", "주말", "공부"], answer: "운동" },
+            { number: 7, type: 'choice', title: "무엇에 대한 이야기입니까?", questionText: "어제는 눈이 왔습니다. 오늘은 춥지만 눈이 안 옵니다.", options: ["주말", "음식", "날씨", "여행"], answer: "날씨" },
+            // 8-9: 읽고 답하기
+            { number: 8, type: 'choice', title: "다음 중 내용과 다른 것을 고르세요.", questionText: "", options: ["서울은 날씨가 춥습니다.", "대전은 눈이 옵니다.", "부산은 날씨가 덥습니다.", "제주도는 비가 오고 시원합니다."], answer: "부산은 날씨가 덥습니다." },
+            { number: 9, type: 'choice', title: "다음 표를 보고 맞지 않는 것을 고르세요.", questionText: "<div class='text-center grid grid-cols-4 gap-2 text-sm md:text-base'><div>월: ☀️ 30℃</div> <div>화: ☁️ 27℃</div> <div>수: 🌧️ 24℃</div> <div>목: ☀️ 28℃</div> <div>금: 🌧️ 25℃</div> <div>토: 🌧️ 20℃</div> <div>일: 🌧️ 19℃</div></div>", options: ["월요일에는 날씨가 덥습니다.", "수요일에는 날씨가 흐립니다.", "주말에는 비가 옵니다.", "지금은 여름입니다."], answer: "수요일에는 날씨가 흐립니다." },
+            // 10-11: 순서 맞추기
+            { number: 10, type: 'scramble', title: "순서에 맞게 문장을 만드세요.", parts: ["옵니다", "미국은", "비", "요즘", "가"], answer: "미국은 요즘 비가 옵니다" },
+            { number: 11, type: 'scramble', title: "순서에 맞게 문장을 만드세요.", parts: ["식당은", "맛있어요", "저", "비싸지만"], answer: "저 식당은 비싸지만 맛있어요" },
+            // 12-13: 대화 완성
+            { number: 12, type: 'choice', title: "대화를 완성하세요.", questionText: "A: 같이 ( )?<br>B: 네, 좋아요.", options: ["자전거 탈까요", "공부할까요", "영화 볼까요", "쇼핑할까요"], answer: "자전거 탈까요" },
+            { number: 13, type: 'choice', title: "대화를 완성하세요.", questionText: "A: 오늘은 ( )?<br>B: 눈이 옵니다.", options: ["날씨가 어때요", "뭐 먹을까요", "어디에 가요", "기분이 어때요"], answer: "날씨가 어때요" },
+            // 14-16: 접속사 고르기
+            { number: 14, type: 'connector', title: "알맞은 것을 골라 문장을 만드세요.", sentences: ["한국어가 재미있습니다.", "한국어가 어렵습니다."], options: ["-고", "-지만"], answer: "-지만", result: "한국어가 재미있지만 어렵습니다." },
+            { number: 15, type: 'connector', title: "알맞은 것을 골라 문장을 만드세요.", sentences: ["음악을 들어요.", "텔레비전을 봐요."], options: ["-고", "-지만"], answer: "-고", result: "음악을 듣고 텔레비전을 봐요." },
+            { number: 16, type: 'connector', title: "알맞은 것을 골라 문장을 만드세요.", sentences: ["어제는 비가 왔어요.", "오늘은 안 와요."], options: ["-고", "-지만"], answer: "-지만", result: "어제는 비가 왔지만 오늘은 안 와요." },
+             // 17-18: 읽기 문제 1
+            { number: 17, type: 'passage_choice', title: "글을 읽고 물음에 답하세요.", passage: "우리 집 옆에는 찜질방이 있습니다. 거기에는 방이 많이 있습니다. 방 안에는 사람이 많습니다. 사람들은 거기에서 낮잠을 자고 책도 읽습니다. 그리고 식혜도 마십니다. 식혜는 ( ㉠ ) 맛있습니다. 찜질방에는 아이스방도 있습니다. 아이스방은 아주 춥습니다. 요즘 우리 한국어 반 친구들은 찜질방에 자주 갑니다. 우리는 외국 사람이지만 한국의 찜질방이 좋습니다.", questionText: "㉠에 들어갈 알맞은 말을 고르세요.", options: ["맵고", "춥고", "복잡하고", "시원하고"], answer: "시원하고" },
+            { number: 18, type: 'passage_choice', title: "글을 읽고 물음에 답하세요.", passage: "우리 집 옆에는 찜질방이 있습니다. 거기에는 방이 많이 있습니다. 방 안에는 사람이 많습니다. 사람들은 거기에서 낮잠을 자고 책도 읽습니다. 그리고 식혜도 마십니다. 식혜는 시원하고 맛있습니다. 찜질방에는 아이스방도 있습니다. 아이스방은 아주 춥습니다. 요즘 우리 한국어 반 친구들은 찜질방에 자주 갑니다. 우리는 외국 사람이지만 한국의 찜질방이 좋습니다.", questionText: "이 글의 내용과 같은 것을 고르세요.", options: ["우리 집에는 방이 많이 있습니다.", "사람들은 찜질방에서 식혜를 마십니다.", "찜질방의 방들은 모두 따뜻합니다.", "외국 사람은 한국의 찜질방을 안 좋아합니다."], answer: "사람들은 찜질방에서 식혜를 마십니다." },
+            // 19-20: 읽기 문제 2
+            { number: 19, type: 'passage_ox', title: "글을 읽고 맞으면 O, 틀리면 X 하세요.", passage: "저는 니콜이에요. 캐나다에서 왔어요. 저는 한국에서 영어를 가르쳐요. 지금 한국은 겨울이에요. 날씨가 아주 추워요. 저는 지난겨울에 한국에서 호떡을 처음 먹었어요. 호떡은 따뜻하고 맛있어요. 그래서 요즘 저는 매일 호떡을 먹어요. 캐나다 겨울도 춥고 눈이 많이 와요. 캐나다 사람들은 겨울에 아이들과 같이 메이플 태피를 만들어요. 이 사탕은 눈 위에 만들어요. 조금 춥지만 아주 재미있고 사탕도 맛있어요. 그래서 캐나다 사람들은 메이플 태피를 아주 좋아해요.", questionText: "이 글의 니콜 씨는 호떡을 좋아합니다.", options: ["O", "X"], answer: "O" },
+            { number: 20, type: 'passage_ox', title: "글을 읽고 맞으면 O, 틀리면 X 하세요.", passage: "저는 니콜이에요. 캐나다에서 왔어요. 저는 한국에서 영어를 가르쳐요. 지금 한국은 겨울이에요. 날씨가 아주 추워요. 저는 지난겨울에 한국에서 호떡을 처음 먹었어요. 호떡은 따뜻하고 맛있어요. 그래서 요즘 저는 매일 호떡을 먹어요. 캐나다 겨울도 춥고 눈이 많이 와요. 캐나다 사람들은 겨울에 아이들과 같이 메이플 태피를 만들어요. 이 사탕은 눈 위에 만들어요. 조금 춥지만 아주 재미있고 사탕도 맛있어요. 그래서 캐나다 사람들은 메이플 태피를 아주 좋아해요.", questionText: "메이플 태피 사탕은 따뜻하고 맛있습니다.", options: ["O", "X"], answer: "X" },
+        ];
+
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const endScreen = document.getElementById('end-screen');
+        const questionTitleEl = document.getElementById('question-title');
+        const progressEl = document.getElementById('quiz-progress');
+        const questionContentEl = document.getElementById('question-content');
+        const feedbackEl = document.getElementById('feedback');
+        const scoreEl = document.getElementById('score');
+        
+        function startQuiz() {
+            currentQuestions = [...questions]; // 순서 고정
+            currentQuestionIndex = 0;
+            score = 0;
+            showScreen('quiz-screen');
+            loadNextQuestion();
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.quiz-screen').forEach(screen => screen.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function loadNextQuestion() {
+            if (currentQuestionIndex >= currentQuestions.length) {
+                showEndScreen();
+                return;
+            }
+            isAnswered = false;
+            feedbackEl.innerHTML = '';
+            questionContentEl.innerHTML = '';
+            
+            const q = currentQuestions[currentQuestionIndex];
+            questionTitleEl.innerHTML = `<span class="text-slate-500 font-medium mr-2">${q.number}.</span> ${q.title}`;
+            progressEl.textContent = `${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+
+            switch(q.type) {
+                case 'emoji': loadEmojiQuestion(q); break;
+                case 'choice': loadChoiceQuestion(q); break;
+                case 'scramble': loadScrambleQuestion(q); break;
+                case 'connector': loadConnectorQuestion(q); break;
+                case 'passage_choice':
+                case 'passage_ox':
+                    loadPassageQuestion(q);
+                    break;
+            }
+        }
+        
+        function loadEmojiQuestion(q) {
+            questionContentEl.innerHTML = `
+                <p class="text-center text-2xl font-bold mb-6">${q.keyword}</p>
+                <div id="options" class="grid grid-cols-2 gap-4"></div>
+            `;
+            const optionsContainer = document.getElementById('options');
+            q.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-btn emoji-option';
+                button.textContent = option;
+                button.onclick = () => checkAnswer(button, option);
+                optionsContainer.appendChild(button);
+            });
+        }
+        
+        function loadChoiceQuestion(q) {
+             questionContentEl.innerHTML = `
+                <div class="bg-slate-50 p-4 rounded-lg mb-6 text-center text-xl min-h-[5rem] flex items-center justify-center">${q.questionText}</div>
+                <div id="options" class="space-y-3"></div>
+            `;
+            const optionsContainer = document.getElementById('options');
+            q.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => checkAnswer(button, option);
+                optionsContainer.appendChild(button);
+            });
+        }
+        
+        function loadConnectorQuestion(q) {
+            questionContentEl.innerHTML = `
+                <div class="bg-slate-50 p-4 rounded-lg mb-6 text-center text-xl space-y-2">
+                    <p>${q.sentences[0]}</p>
+                    <p>${q.sentences[1]}</p>
+                </div>
+                <div id="options" class="grid grid-cols-2 gap-4"></div>
+            `;
+            const optionsContainer = document.getElementById('options');
+            q.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => checkAnswer(button, option);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function loadScrambleQuestion(q) {
+             questionContentEl.innerHTML = `
+                <div id="scramble-answer-box" class="bg-slate-50 p-3 rounded-lg mb-4 border-2 border-slate-300 flex flex-wrap gap-2 items-center justify-center"></div>
+                <div id="scramble-words-box" class="p-4 rounded-lg flex flex-wrap gap-3 items-center justify-center"></div>
+                <div class="mt-6 text-center">
+                    <button id="scramble-submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg shadow-md">확인</button>
+                </div>
+            `;
+            const answerBox = document.getElementById('scramble-answer-box');
+            const wordsBox = document.getElementById('scramble-words-box');
+            let currentAnswer = [];
+
+            const moveWord = (wordEl, part) => {
+                if (answerBox.contains(wordEl)) {
+                    // Move from answer to words
+                    currentAnswer = currentAnswer.filter(p => p !== part);
+                    wordsBox.appendChild(wordEl);
+                } else {
+                    // Move from words to answer
+                    currentAnswer.push(part);
+                    answerBox.appendChild(wordEl);
+                }
+            };
+            
+            [...q.parts].sort(()=>Math.random()-0.5).forEach(part => {
+                const wordEl = document.createElement('button');
+                wordEl.textContent = part;
+                wordEl.className = "scramble-word p-2 px-4 border-2 rounded-lg text-lg font-semibold bg-white shadow-sm";
+                wordEl.onclick = () => moveWord(wordEl, part);
+                wordsBox.appendChild(wordEl);
+            });
+
+            document.getElementById('scramble-submit').onclick = () => {
+                const userAnswer = Array.from(answerBox.children).map(el => el.textContent).join(' ');
+                checkAnswer(null, userAnswer);
+            };
+        }
+        
+        function loadPassageQuestion(q) {
+            let optionsHTML = '';
+            if (q.type === 'passage_choice') {
+                optionsHTML = `<div id="options" class="space-y-3"></div>`;
+            } else { // passage_ox
+                optionsHTML = `<div id="options" class="grid grid-cols-2 gap-4"></div>`;
+            }
+
+            // For questions that share a passage, only show the question text part
+            const passageHTML = (q.number === 18 || q.number === 20) ? '' : `<div class="bg-slate-50 p-4 rounded-lg mb-6 text-left text-base leading-relaxed max-h-48 overflow-y-auto">${q.passage.replace(/\n/g, '<br>')}</div>`;
+
+            questionContentEl.innerHTML = `
+                ${passageHTML}
+                <div class="bg-blue-50 p-4 rounded-lg mb-6 text-center text-xl">${q.questionText}</div>
+                ${optionsHTML}
+            `;
+            
+            const optionsContainer = document.getElementById('options');
+            q.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                if (q.type === 'passage_ox') {
+                    button.classList.add('text-3xl', 'font-bold');
+                }
+                button.textContent = option;
+                button.onclick = () => checkAnswer(button, option);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+
+        function checkAnswer(selectedButton, answer) {
+            if (isAnswered) return;
+            isAnswered = true;
+            
+            if (selectedButton) {
+                selectedButton.classList.add('selected');
+            }
+            document.querySelectorAll('#question-content button').forEach(b => b.disabled = true);
+
+            const q = currentQuestions[currentQuestionIndex];
+            const isCorrect = answer === q.answer;
+            if (isCorrect) score++;
+
+            showFeedbackAndNextButton(isCorrect, q);
+        }
+
+        function showFeedbackAndNextButton(isCorrect, q) {
+            let correctText = `정답! 🎉`;
+            let incorrectText = `오답! 정답은 '${q.answer}'입니다.`;
+            
+            if (q.type === 'connector' && isCorrect) {
+                correctText += `<br><span class="text-base font-normal text-slate-600">${q.result}</span>`;
+            }
+
+            feedbackEl.innerHTML = isCorrect 
+                ? `<p class="font-bold text-green-500">${correctText}</p>`
+                : `<p class="font-bold text-red-500">${incorrectText}</p>`;
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '다음 문제 →';
+            nextButton.className = "mt-4 bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-5 rounded-lg";
+            nextButton.onclick = () => {
+                currentQuestionIndex++;
+                loadNextQuestion();
+            };
+            feedbackEl.appendChild(nextButton);
+        }
+
+        function showEndScreen() {
+            const percentage = Math.round((score / currentQuestions.length) * 100);
+            scoreEl.textContent = `${percentage}%`;
+            showScreen('end-screen');
+        }
+    </script>
+</body>
+</html>
+
