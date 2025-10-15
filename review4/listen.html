@@ -24,6 +24,7 @@
             font-size: 1.125rem; /* text-lg */
             font-weight: 500;
             transition: all 0.2s ease-in-out;
+            cursor: pointer;
         }
         .option-btn:hover {
             border-color: #60a5fa; /* blue-400 */
@@ -66,7 +67,6 @@
                 <div id="quiz-progress" class="text-lg font-semibold text-slate-500"></div>
             </div>
              <div id="script-button-container" class="text-right mb-4"></div>
-            <div id="show-options-container" class="mt-8"></div>
             <div id="options" class="space-y-3 mt-8"></div>
             <div id="feedback" class="mt-6 text-center text-md min-h-[6rem]"></div>
         </div>
@@ -85,12 +85,12 @@
     </div>
 
     <!-- Script Modal -->
-    <div id="script-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+    <div id="script-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-start justify-center p-4 pt-20 z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative animate-fade-in-up">
             <h3 class="text-2xl font-bold mb-4 text-slate-800">대본</h3>
             <pre id="script-content" class="bg-slate-100 p-4 rounded text-slate-800 whitespace-pre-wrap text-base md:text-lg leading-relaxed max-h-[60vh] overflow-y-auto"></pre>
             <button onclick="hideScriptModal()" class="absolute top-3 right-3 text-slate-400 hover:text-slate-800 bg-slate-100 rounded-full p-1 transition">
-                <svg xmlns="http://www.w.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
         </div>
     </div>
@@ -143,7 +143,6 @@
         const feedbackEl = document.getElementById('feedback');
         const scoreEl = document.getElementById('score');
         const scriptButtonContainer = document.getElementById('script-button-container');
-        const showOptionsContainer = document.getElementById('show-options-container');
 
         function showScreen(screenId) {
             document.querySelectorAll('.quiz-screen').forEach(screen => screen.classList.remove('active'));
@@ -157,6 +156,20 @@
             showScreen('quiz-screen');
             loadNextQuestion();
         }
+        
+        function revealThenCheck(button, option) {
+            if (isAnswered) return;
+
+            if (button.dataset.revealed === 'false') {
+                // 첫 클릭: 보기 내용 표시
+                const textSpan = button.querySelector('span:last-child');
+                textSpan.textContent = option;
+                button.dataset.revealed = 'true';
+            } else {
+                // 두 번째 클릭: 정답 확인
+                checkAnswer(button, option);
+            }
+        }
 
         function loadNextQuestion() {
             if (currentQuestionIndex >= currentQuestions.length) {
@@ -166,7 +179,6 @@
             isAnswered = false;
             feedbackEl.innerHTML = '';
             scriptButtonContainer.innerHTML = '';
-            showOptionsContainer.innerHTML = '';
             optionsEl.innerHTML = '';
             
             const q = currentQuestions[currentQuestionIndex];
@@ -179,29 +191,20 @@
             scriptButton.className = "bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105 text-sm";
             scriptButton.onclick = () => showScriptModal(currentQuestionIndex);
             scriptButtonContainer.appendChild(scriptButton);
-
-            // 4~8번 문제 특별 처리
-            if (q.number >= 4 && q.number <= 8) {
-                optionsEl.style.display = 'none';
-                showOptionsContainer.style.display = 'block';
-                const showButton = document.createElement('button');
-                showButton.textContent = '[보기] 보기';
-                showButton.className = "bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg transition";
-                showButton.onclick = () => {
-                    optionsEl.style.display = 'block';
-                    showOptionsContainer.style.display = 'none';
-                };
-                showOptionsContainer.appendChild(showButton);
-            } else {
-                optionsEl.style.display = 'block';
-                showOptionsContainer.style.display = 'none';
-            }
             
             q.options.forEach((option, index) => {
                 const button = document.createElement('button');
                 button.className = 'option-btn';
-                button.innerHTML = `<span class="option-num">${index + 1}</span> <span>${option}</span>`;
-                button.onclick = () => checkAnswer(button, option);
+
+                if (q.number >= 4 && q.number <= 8) {
+                    button.innerHTML = `<span class="option-num">${index + 1}</span> <span>[보기]</span>`;
+                    button.dataset.revealed = 'false';
+                    button.onclick = () => revealThenCheck(button, option);
+                } else {
+                    button.innerHTML = `<span class="option-num">${index + 1}</span> <span>${option}</span>`;
+                    button.onclick = () => checkAnswer(button, option);
+                }
+                
                 optionsEl.appendChild(button);
             });
         }
@@ -219,6 +222,8 @@
 
             showFeedbackAndNextButton(isCorrect, q.answer);
         }
+
+
 
         function showFeedbackAndNextButton(isCorrect, correctAnswer) {
             const correctText = `정답! 🎉`;
