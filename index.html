@@ -3,84 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>한국어 1급 학습</title>
+    <title>한국어 학습 1급</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
         }
         .menu-button {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s;
-            border: 1px solid #e5e7eb;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s;
+            border: 1px solid #e5e7eb; /* slate-200 */
+            position: relative;
+            overflow: hidden;
+        }
+        .menu-button:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #3b82f6; /* blue-600 */
+            transition: width 0.3s ease;
         }
         .menu-button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border-color: #93c5fd;
-            background-color: #fafcff;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.07);
+            border-color: #93c5fd; /* blue-300 */
         }
+        .menu-button:hover:before {
+            width: 8px;
+        }
+        .review-button:before {
+            background-color: #10b981; /* emerald-500 */
+        }
+
+        /* 비활성화된 버튼 스타일 */
+        .disabled-button {
+            background-color: #f1f5f9; /* slate-100 */
+            color: #94a3b8; /* slate-400 */
+            cursor: not-allowed;
+            pointer-events: none; /* 클릭 이벤트 비활성화 */
+        }
+        .disabled-button:before {
+            background-color: #cbd5e1; /* slate-300 */
+        }
+        .disabled-button .button-title,
+        .disabled-button .button-icon {
+            opacity: 0.6;
+        }
+
     </style>
 </head>
 <body class="bg-slate-50">
-    <div class="container mx-auto px-4 py-8 md:py-12">
-        <header class="text-center mb-10">
+    <div class="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
+        <header class="text-center mb-12">
             <h1 class="text-4xl md:text-5xl font-bold text-slate-800 mb-3">한국어 학습 1급</h1>
             <p class="text-lg text-slate-600">학습할 과를 선택하세요.</p>
         </header>
 
         <main>
             <!-- Chapters -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                <a href="consonantvowel/" class="menu-button col-span-1 sm:col-span-2 lg:col-span-3 block bg-white p-6 rounded-xl text-center">
-                    <h2 class="text-xl font-bold text-blue-600">0. 한글 배우기</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <a href="consonantvowel/" class="menu-button col-span-1 sm:col-span-2 lg:col-span-3 block bg-white p-6 rounded-xl text-center shadow-sm">
+                     <h2 class="text-xl font-bold text-blue-600 button-title">0. 한글 배우기</h2>
                 </a>
-                <a href="c1/" class="menu-button block bg-white p-6 rounded-xl text-left">
-                    <h3 class="text-lg font-bold text-slate-700">1과. 안녕하세요?</h3>
+                
+                <a href="c1/" class="menu-button block bg-white p-5 rounded-xl shadow-sm">
+                    <div class="flex items-center space-x-4">
+                        <div class="button-icon text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v11.494m-9-5.747h18" /></svg></div>
+                        <h3 class="text-lg font-bold text-slate-700 button-title">1과. 안녕하세요?</h3>
+                    </div>
                 </a>
-                <a href="c2/" class="menu-button block bg-white p-6 rounded-xl text-left">
-                    <h3 class="text-lg font-bold text-slate-700">2과. 이거는 뭐예요?</h3>
+                <a href="c2/" class="menu-button block bg-white p-5 rounded-xl shadow-sm">
+                     <div class="flex items-center space-x-4">
+                        <div class="button-icon text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+                        <h3 class="text-lg font-bold text-slate-700 button-title">2과. 이거는 뭐예요?</h3>
+                    </div>
                 </a>
-                <a href="c3/" class="menu-button block bg-white p-6 rounded-xl text-left">
-                    <h3 class="text-lg font-bold text-slate-700">3과. 한국어하고 영어를 공부해요</h3>
+                <a href="c3/" class="menu-button block bg-white p-5 rounded-xl shadow-sm">
+                     <div class="flex items-center space-x-4">
+                        <div class="button-icon text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v11.494m-9-5.747h18" /></svg></div>
+                        <h3 class="text-lg font-bold text-slate-700 button-title">3과. 한국어하고 영어를 공부해요</h3>
+                    </div>
                 </a>
-                <a href="c4/" class="menu-button block bg-white p-6 rounded-xl text-left">
-                    <h3 class="text-lg font-bold text-slate-700">4과. 어디에 가요?</h3>
+                <a href="c4/" class="menu-button block bg-white p-5 rounded-xl shadow-sm">
+                     <div class="flex items-center space-x-4">
+                        <div class="button-icon text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div>
+                        <h3 class="text-lg font-bold text-slate-700 button-title">4과. 어디에 가요?</h3>
+                    </div>
                 </a>
-                <a href="c5/" class="menu-button block bg-white p-6 rounded-xl text-left">
-                    <h3 class="text-lg font-bold text-slate-700">5과. 주말에 뭐 했어요?</h3>
+                <a href="c5/" class="menu-button block bg-white p-5 rounded-xl shadow-sm">
+                     <div class="flex items-center space-x-4">
+                        <div class="button-icon text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>
+                        <h3 class="text-lg font-bold text-slate-700 button-title">5과. 주말에 뭐 했어요?</h3>
+                    </div>
                 </a>
-                <a href="c6/" class="menu-button block bg-white p-6 rounded-xl text-left">
-                    <h3 class="text-lg font-bold text-slate-700">6과. 우리 집에 올까요?</h3>
+                <a href="c6/" class="menu-button block bg-white p-5 rounded-xl shadow-sm">
+                     <div class="flex items-center space-x-4">
+                        <div class="button-icon text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg></div>
+                        <h3 class="text-lg font-bold text-slate-700 button-title">6과. 우리 집에 올까요?</h3>
+                    </div>
                 </a>
-                 <a href="c7/" class="menu-button block bg-white p-6 rounded-xl text-left">
-                    <h3 class="text-lg font-bold text-slate-700">7과. 날씨가 어때요?</h3>
+                <a href="c7/" class="menu-button block bg-white p-5 rounded-xl shadow-sm">
+                     <div class="flex items-center space-x-4">
+                        <div class="button-icon text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg></div>
+                        <h3 class="text-lg font-bold text-slate-700 button-title">7과. 날씨가 어때요?</h3>
+                    </div>
                 </a>
-                <a href="c8/" class="menu-button block bg-white p-6 rounded-xl text-left">
-                    <h3 class="text-lg font-bold text-slate-700">8과. 영화 볼까요?</h3>
+                <a href="c8/" class="menu-button block bg-white p-5 rounded-xl shadow-sm">
+                     <div class="flex items-center space-x-4">
+                        <div class="button-icon text-blue-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" /></svg></div>
+                        <h3 class="text-lg font-bold text-slate-700 button-title">8과. 영화 볼까요?</h3>
+                    </div>
                 </a>
             </div>
 
             <!-- Reviews -->
             <div class="mt-12">
                 <h2 class="text-2xl font-bold text-center text-slate-700 mb-6 border-t pt-8">복습</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    <a href="review1/" class="menu-button block bg-white p-6 rounded-xl text-center">
-                        <h3 class="text-lg font-bold text-slate-700">복습 1 (1-2과)</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <a href="review1/" class="menu-button review-button block bg-white p-5 rounded-xl text-center shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-700 button-title">복습 1 (1-2과)</h3>
                     </a>
-                    <a href="review2/" class="menu-button block bg-white p-6 rounded-xl text-center">
-                        <h3 class="text-lg font-bold text-slate-700">복습 2 (3-4과)</h3>
+                    <a href="review2/" class="menu-button review-button block bg-white p-5 rounded-xl text-center shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-700 button-title">복습 2 (3-4과)</h3>
                     </a>
-                    <a href="review3/" class="menu-button block bg-white p-6 rounded-xl text-center">
-                        <h3 class="text-lg font-bold text-slate-700">복습 3 (5-6과)</h3>
+                    <a href="review3/" class="menu-button review-button block bg-white p-5 rounded-xl text-center shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-700 button-title">복습 3 (5-6과)</h3>
                     </a>
-                    <a href="review4/" class="menu-button block bg-white p-6 rounded-xl text-center">
-                        <h3 class="text-lg font-bold text-slate-700">복습 4 (7-8과)</h3>
+                    <a href="review4/" class="menu-button review-button block bg-white p-5 rounded-xl text-center shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-700 button-title">복습 4 (7-8과)</h3>
                     </a>
                 </div>
             </div>
         </main>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('main a.menu-button');
+
+            links.forEach(link => {
+                const path = link.getAttribute('href');
+                
+                // 링크가 폴더 경로가 아니거나 비어있으면 건너뜁니다.
+                if (!path || !path.endsWith('/')) {
+                    return;
+                }
+
+                // 각 폴더에 index.html 파일이 있는지 확인하여 폴더 존재 여부를 간접적으로 확인합니다.
+                // HEAD 요청은 파일 내용 전체가 아닌 헤더 정보만 가져와 더 효율적입니다.
+                fetch(path, { method: 'HEAD' })
+                    .then(response => {
+                        // response.ok가 false이면 (예: 404 Not Found) 폴더가 존재하지 않는 것으로 간주합니다.
+                        if (!response.ok) {
+                            link.classList.add('disabled-button');
+                            link.setAttribute('aria-disabled', 'true');
+                            link.setAttribute('tabindex', '-1');
+                            link.href = '#'; // 클릭 시 이동 방지
+                        }
+                    })
+                    .catch(error => {
+                        // 네트워크 오류 등 다른 문제가 발생한 경우에도 비활성화합니다.
+                        console.warn(`Path check failed for ${path}:`, error);
+                        link.classList.add('disabled-button');
+                        link.setAttribute('aria-disabled', 'true');
+                        link.setAttribute('tabindex', '-1');
+                        link.href = '#';
+                    });
+            });
+        });
+    </script>
 </body>
 </html>
 
