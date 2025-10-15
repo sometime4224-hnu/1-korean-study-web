@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 학습 교실</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .menu-button {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .menu-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div class="container mx-auto px-4 py-8 md:py-16">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-800 mb-3">📚 한국어 학습 교실</h1>
+            <p class="text-lg text-slate-600">원하는 학습 메뉴를 선택하여 퀴즈를 풀어보세요.</p>
+        </header>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <!-- 어휘 퀴즈 -->
+            <a href="wordsquiz.html" class="menu-button block bg-white p-8 rounded-2xl shadow-md text-center">
+                <div class="text-5xl mb-4">🧩</div>
+                <h2 class="text-2xl font-bold text-slate-700">어휘 퀴즈</h2>
+                <p class="text-slate-500 mt-1">단어의 의미를 맞춰보세요.</p>
+            </a>
+
+            <!-- 문법 퀴즈 -->
+            <a href="grammar.html" class="menu-button block bg-white p-8 rounded-2xl shadow-md text-center">
+                <div class="text-5xl mb-4">📖</div>
+                <h2 class="text-2xl font-bold text-slate-700">문법 퀴즈</h2>
+                <p class="text-slate-500 mt-1">문법 규칙을 연습해요.</p>
+            </a>
+
+            <!-- -아요 / -습니다 퀴즈 -->
+            <a href="formalinformal.html" class="menu-button block bg-white p-8 rounded-2xl shadow-md text-center">
+                <div class="text-5xl mb-4">🤝</div>
+                <h2 class="text-2xl font-bold text-slate-700">-아요 / -습니다</h2>
+                <p class="text-slate-500 mt-1">상황에 맞게 말해봐요.</p>
+            </a>
+
+            <!-- 듣기 퀴즈 -->
+            <a href="listen.html" class="menu-button block bg-white p-8 rounded-2xl shadow-md text-center">
+                <div class="text-5xl mb-4">🎧</div>
+                <h2 class="text-2xl font-bold text-slate-700">듣기 퀴즈</h2>
+                <p class="text-slate-500 mt-1">대화를 듣고 문제를 풀어요.</p>
+            </a>
+            
+            <!-- 읽기/쓰기 퀴즈 -->
+            <a href="reading.html" class="menu-button block bg-white p-8 rounded-2xl shadow-md text-center md:col-span-2 lg:col-span-1">
+                <div class="text-5xl mb-4">✍️</div>
+                <h2 class="text-2xl font-bold text-slate-700">읽기/쓰기 퀴즈</h2>
+                <p class="text-slate-500 mt-1">글을 읽고 이해해요.</p>
+            </a>
+
+        </main>
+
+        <footer class="text-center mt-16">
+            <p class="text-slate-500">모든 퀴즈 파일을 같은 폴더에 넣고 이 파일을 실행하세요.</p>
+        </footer>
+    </div>
+</body>
+</html>
+
