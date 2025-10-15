@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Noto+Sans+KR', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
             touch-action: manipulation;
         }
         .quiz-screen { display: none; }
@@ -30,11 +30,6 @@
             min-height: 5rem;
             border-style: dashed;
         }
-        .scramble-word.in-answer {
-            background-color: #e0e7ff; /* indigo-100 */
-            border-color: #a5b4fc; /* indigo-300 */
-            cursor: pointer;
-        }
     </style>
 </head>
 <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
@@ -42,7 +37,7 @@
     <div id="app-container" class="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-8 transform transition-all">
 
         <!-- 시작 화면 -->
-        <div id="start-screen" class="active">
+        <div id="start-screen" class="quiz-screen active">
             <h1 class="text-3xl font-bold text-center text-slate-800 mb-2">한국어 문법 퀴즈</h1>
             <p class="text-center text-slate-500 mb-8">학습할 퀴즈 유형을 선택하세요.</p>
             <div class="space-y-4">
@@ -73,7 +68,7 @@
                 <p id="mc-sentence" class="text-2xl md:text-3xl text-center leading-relaxed font-medium text-slate-800"></p>
             </div>
             <div id="mc-options" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            <div id="mc-feedback" class="mt-6 text-center text-md min-h-[4rem]"></div>
+            <div id="mc-feedback" class="mt-6 text-center text-md min-h-[6rem]"></div>
         </div>
 
         <!-- 문장 배열하기 (Scramble) 퀴즈 화면 -->
@@ -85,10 +80,10 @@
             <div id="scramble-words-box" class="p-4 rounded-lg flex flex-wrap gap-3 items-center justify-center">
                 <!-- 단어 선택지가 여기에 표시됩니다. -->
             </div>
-             <div class="mt-6 text-center">
+             <div id="scramble-button-container" class="mt-6 text-center">
                 <button id="scramble-submit" onclick="checkScrambleAnswer()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-md transition-transform transform hover:scale-105">확인</button>
             </div>
-            <div id="scramble-feedback" class="mt-4 text-center text-md min-h-[4rem]"></div>
+            <div id="scramble-feedback" class="mt-4 text-center text-md min-h-[6rem]"></div>
         </div>
 
         <!-- O/X 퀴즈 화면 -->
@@ -97,11 +92,11 @@
             <div class="bg-slate-50 p-6 rounded-lg mb-6 min-h-[100px] flex items-center justify-center">
                 <p id="ox-sentence" class="text-2xl md:text-3xl text-center leading-relaxed font-medium text-slate-800"></p>
             </div>
-            <div class="flex justify-center gap-6">
+            <div id="ox-buttons" class="flex justify-center gap-6">
                 <button onclick="checkOxAnswer(true)" class="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full w-24 h-24 text-4xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-110">O</button>
                 <button onclick="checkOxAnswer(false)" class="bg-red-500 hover:bg-red-600 text-white font-bold rounded-full w-24 h-24 text-4xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-110">X</button>
             </div>
-            <div id="ox-feedback" class="mt-6 text-center text-md min-h-[4rem]"></div>
+            <div id="ox-feedback" class="mt-6 text-center text-md min-h-[6rem]"></div>
         </div>
 
         <!-- 종료 화면 -->
@@ -124,31 +119,31 @@
             mc: {
                 title: "문법 고르기",
                 questions: [
-                    { sentence: "저는 학교{blank} 가요.", options: ["에", "를", "에서"], answer: "에", explanation: "'가다/오다' 같은 동사는 장소 뒤에 '에'를 사용해요." },
-                    { sentence: "친구가 책{blank} 읽어요.", options: ["을", "이", "은"], answer: "을", explanation: "행동의 대상이 되는 명사 뒤에는 '을/를'을 붙여요." },
-                    { sentence: "어제 영화가 아주 {blank}.", options: ["재미있었어요", "재미있어요", "재미있을 거예요"], answer: "재미있었어요", explanation: "'어제'는 과거이므로 '-았/었어요'를 사용해요." },
-                    { sentence: "날씨가 좋아서 기분{blank} 좋아요.", options: ["이", "을", "도"], answer: "이", explanation: "'좋다'의 주어는 '기분'이므로 주격 조사 '이/가'가 필요해요." },
-                    { sentence: "저는 매일 운동{blank}.", options: ["해요", "했어요", "할 거예요"], answer: "해요", explanation: "'매일' 반복되는 일은 현재 시제 '-아요/어요'를 사용해요." }
+                    { sentence: "오늘 날씨가 정말 {blank}.", options: ["더워요", "덥어요", "덥습니다"], answer: "더워요", explanation: "'덥다'는 'ㅂ' 불규칙 동사라서 모음 어미 앞에서 'ㅂ'이 '우'로 바뀌어요." },
+                    { sentence: "이 식당은 비싸지만 아주 {blank}.", options: ["맛있어요", "맛있고", "맛있어서"], answer: "맛있어요", explanation: "'-지만'은 앞선 내용과 반대되는 내용이 뒤에 올 때 사용해요." },
+                    { sentence: "우리 저녁 먹고 같이 공원에 {blank}?", options: ["걸을까요", "걷을까요", "걸었어요"], answer: "걸을까요", explanation: "'걷다'는 'ㄷ' 불규칙 동사라서 모음 어미 앞에서 'ㄷ'이 'ㄹ'로 바뀌어요." },
+                    { sentence: "저기 있는 {blank} 가방은 얼마예요?", options: ["저", "이", "그"], answer: "저", explanation: "'저'는 말하는 사람과 듣는 사람 모두에게서 멀리 있는 것을 가리킬 때 사용해요." },
+                    { sentence: "와, 아기가 정말 잘 {blank}!", options: ["웃네요", "웃어요", "웃을까요"], answer: "웃네요", explanation: "새롭게 알게 된 사실에 대해 감탄하며 말할 때 '-네요'를 사용해요." }
                 ]
             },
             scramble: {
                 title: "문장 배열하기",
                 questions: [
-                    { parts: ["저는", "김치를", "좋아해요"], answer: "저는 김치를 좋아해요" },
-                    { parts: ["어제", "영화를", "친구하고", "봤어요"], answer: "어제 친구하고 영화를 봤어요" },
-                    { parts: ["주말에", "뭐", "할 거예요?"], answer: "주말에 뭐 할 거예요?" },
-                    { parts: ["한국어가", "어렵지만", "재미있어요"], answer: "한국어가 어렵지만 재미있어요" },
-                    { parts: ["도서관에서", "책을", "읽을 거예요"], answer: "도서관에서 책을 읽을 거예요" }
+                    { parts: ["날씨가", "눈이 와요", "춥고"], answer: "날씨가 춥고 눈이 와요" },
+                    { parts: ["어제는", "오늘은", "갔지만,", "학교에", "안 갔어요"], answer: "어제는 학교에 갔지만, 오늘은 안 갔어요" },
+                    { parts: ["저는", "비빔밥을", "먹습니다"], answer: "저는 비빔밥을 먹습니다" },
+                    { parts: ["이", "얼마예요?", "가방은"], answer: "이 가방은 얼마예요?" },
+                    { parts: ["같이", "음악을", "들어요"], answer: "음악을 같이 들어요" }
                 ]
             },
             ox: {
                 title: "O/X 퀴즈",
                 questions: [
-                    { sentence: "저는 사과를 좋아해요.", isCorrect: true, explanation: "올바른 문장입니다." },
-                    { sentence: "어머니께서 방에 있습니다.", isCorrect: false, explanation: "높임말 '계십니다'를 사용해야 해요." },
-                    { sentence: "친구가 저에게 선물을 줬어요.", isCorrect: true, explanation: "올바른 문장입니다." },
-                    { sentence: "내일 공원에 갔어요.", isCorrect: false, explanation: "'내일'은 미래이므로 '갈 거예요'가 맞습니다." },
-                    { sentence: "저는 학생이 아니에요.", isCorrect: true, explanation: "명사 부정형 '이/가 아니다'의 올바른 활용입니다." }
+                    { sentence: "시험이 아주 어려웠어요.", isCorrect: true, explanation: "'어렵다'('ㅂ' 불규칙)의 과거형은 '어려웠어요'가 맞습니다." },
+                    { sentence: "저는 김치는 맵지만 좋아해요.", isCorrect: true, explanation: "'-지만'은 앞선 내용과 반대되는 내용이 올 때 사용하므로 올바른 문장입니다." },
+                    { sentence: "지금 회의를 시작합니다.", isCorrect: true, explanation: "공식적인 상황에서 사용하는 격식체 '-ㅂ니다'를 올바르게 사용했습니다." },
+                    { sentence: "공원까지 같이 걷을까요?", isCorrect: false, explanation: "'걷다'('ㄷ' 불규칙)는 '걸을까요?'로 활용해야 맞습니다." },
+                    { sentence: "그 사람은 한국 가수이네요.", isCorrect: false, explanation: "새롭게 안 사실에 대한 감탄은 '-네요'를 사용하므로, '한국 가수네요'가 자연스럽습니다. '이다' 뒤에는 '-네요'가 바로 붙습니다." }
                 ]
             }
         };
@@ -162,31 +157,28 @@
         let userScrambleAnswer = [];
 
         // --- DOM 요소 ---
-        const startScreen = document.getElementById('start-screen');
-        const endScreen = document.getElementById('end-screen');
+        const appContainer = document.getElementById('app-container');
         const quizHeader = document.getElementById('quiz-header');
         const quizTitleEl = document.getElementById('quiz-title');
         const quizProgressEl = document.getElementById('quiz-progress');
         const scoreEl = document.getElementById('score');
 
         // MC 퀴즈 요소
-        const mcScreen = document.getElementById('quiz-screen-mc');
         const mcSentenceEl = document.getElementById('mc-sentence');
         const mcOptionsEl = document.getElementById('mc-options');
         const mcFeedbackEl = document.getElementById('mc-feedback');
 
         // Scramble 퀴즈 요소
-        const scrambleScreen = document.getElementById('quiz-screen-scramble');
         const scrambleAnswerBox = document.getElementById('scramble-answer-box');
         const scrambleWordsBox = document.getElementById('scramble-words-box');
         const scrambleFeedbackEl = document.getElementById('scramble-feedback');
+        const scrambleButtonContainer = document.getElementById('scramble-button-container');
         const scrambleSubmitBtn = document.getElementById('scramble-submit');
         
         // OX 퀴즈 요소
-        const oxScreen = document.getElementById('quiz-screen-ox');
         const oxSentenceEl = document.getElementById('ox-sentence');
         const oxFeedbackEl = document.getElementById('ox-feedback');
-
+        const oxButtons = document.getElementById('ox-buttons');
 
         // --- 공통 로직 ---
         function shuffle(array) {
@@ -198,14 +190,13 @@
         }
 
         function showScreen(screenId) {
-            document.querySelectorAll('#app-container > div').forEach(div => div.classList.remove('active'));
-            document.getElementById(screenId)?.classList.add('active');
-            
-            const isQuizScreen = screenId.startsWith('quiz-screen');
-            quizHeader.style.display = isQuizScreen ? 'flex' : 'none';
-            if (screenId === 'start-screen') {
-                quizHeader.style.display = 'none';
-            }
+            appContainer.querySelectorAll('.quiz-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+
+            const isQuizActive = screenId.startsWith('quiz-screen-');
+            quizHeader.style.display = isQuizActive ? 'flex' : 'none';
         }
 
         function goToStartScreen() {
@@ -220,8 +211,8 @@
             isAnswered = false;
 
             quizTitleEl.textContent = quizzes[quizType].title;
-            showScreen(`quiz-screen-${quizType}`);
             loadNextQuestion();
+            showScreen(`quiz-screen-${quizType}`);
         }
 
         function loadNextQuestion() {
@@ -240,21 +231,27 @@
         }
         
         function showEndScreen() {
-            scoreEl.textContent = `${Math.round((score / currentQuestions.length) * 100)}%`;
+            const percentage = currentQuestions.length > 0 ? Math.round((score / currentQuestions.length) * 100) : 0;
+            scoreEl.textContent = `${percentage}%`;
             showScreen('end-screen');
         }
         
-        function showFeedback(element, isCorrect, correctText, incorrectText) {
-             element.innerHTML = isCorrect 
+        function showFeedbackAndNextButton(element, isCorrect, explanation) {
+            const correctText = `정답! 🎉 ${explanation}`;
+            const incorrectText = `오답! ${explanation}`;
+            
+            element.innerHTML = isCorrect 
                 ? `<p class="font-bold text-green-500">${correctText}</p>`
                 : `<p class="font-bold text-red-500">${incorrectText}</p>`;
-        }
-        
-        function proceedToNext(delay) {
-             setTimeout(() => {
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '다음 문제 →';
+            nextButton.className = "mt-4 bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-lg transition-transform transform hover:scale-105";
+            nextButton.onclick = () => {
                 currentQuestionIndex++;
                 loadNextQuestion();
-            }, delay);
+            };
+            element.appendChild(nextButton);
         }
 
         // --- 문법 고르기 (MC) 로직 ---
@@ -267,37 +264,48 @@
                 const button = document.createElement('button');
                 button.textContent = option;
                 button.className = "w-full p-4 border-2 rounded-lg text-lg font-semibold transition-all duration-200 shadow-sm bg-white text-slate-700 border-slate-300 hover:border-blue-400";
-                button.onclick = () => checkMcAnswer(button, option);
+                button.onclick = () => checkMcAnswer(option);
                 mcOptionsEl.appendChild(button);
             });
         }
         
-        function checkMcAnswer(btn, answer) {
+        function checkMcAnswer(answer) {
             if (isAnswered) return;
             isAnswered = true;
-            document.querySelectorAll('#mc-options button').forEach(b => b.disabled = true);
-            btn.classList.add('bg-blue-200', 'border-blue-500');
+            mcOptionsEl.querySelectorAll('button').forEach(b => {
+                b.disabled = true;
+                if (b.textContent === answer) {
+                    b.classList.add('bg-blue-100', 'border-blue-400');
+                }
+            });
 
             const q = currentQuestions[currentQuestionIndex];
             const isCorrect = answer === q.answer;
             if (isCorrect) score++;
             
-            showFeedback(mcFeedbackEl, isCorrect, `정답! 🎉 ${q.explanation}`, `오답! 정답은 '${q.answer}'입니다. ${q.explanation}`);
-            proceedToNext(2500);
+            showFeedbackAndNextButton(mcFeedbackEl, isCorrect, `정답은 '${q.answer}'입니다. ${q.explanation}`);
         }
 
         // --- 문장 배열하기 (Scramble) 로직 ---
         function loadScrambleQuestion() {
             scrambleFeedbackEl.innerHTML = '';
+            scrambleButtonContainer.innerHTML = ''; // 버튼 컨테이너 비우기
+            const submitButton = document.createElement('button');
+            submitButton.id = 'scramble-submit';
+            submitButton.textContent = '확인';
+            submitButton.className = "bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-md transition-transform transform hover:scale-105";
+            submitButton.onclick = checkScrambleAnswer;
+            scrambleButtonContainer.appendChild(submitButton);
+
             scrambleAnswerBox.innerHTML = '';
             scrambleWordsBox.innerHTML = '';
-            scrambleSubmitBtn.disabled = false;
             userScrambleAnswer = [];
 
             const q = currentQuestions[currentQuestionIndex];
-            shuffle([...q.parts]).forEach(part => {
+            shuffle([...q.parts]).forEach((part, index) => {
                 const wordEl = document.createElement('button');
                 wordEl.textContent = part;
+                wordEl.dataset.id = index;
                 wordEl.className = "scramble-word p-2 px-4 border-2 rounded-lg text-lg font-semibold bg-white shadow-sm";
                 wordEl.onclick = () => moveWord(wordEl, 'toAnswer');
                 scrambleWordsBox.appendChild(wordEl);
@@ -306,11 +314,9 @@
 
         function moveWord(wordEl, direction) {
             if (direction === 'toAnswer') {
-                userScrambleAnswer.push(wordEl.textContent);
                 wordEl.onclick = () => moveWord(wordEl, 'toWords');
                 scrambleAnswerBox.appendChild(wordEl);
             } else {
-                userScrambleAnswer = userScrambleAnswer.filter(w => w !== wordEl.textContent);
                 wordEl.onclick = () => moveWord(wordEl, 'toAnswer');
                 scrambleWordsBox.appendChild(wordEl);
             }
@@ -319,21 +325,20 @@
         function checkScrambleAnswer() {
             if (isAnswered) return;
             isAnswered = true;
-            scrambleSubmitBtn.disabled = true;
+            scrambleButtonContainer.innerHTML = ''; // 확인 버튼 제거
 
             const q = currentQuestions[currentQuestionIndex];
-            const userAnswerStr = userScrambleAnswer.join(' ');
-            const isCorrect = userAnswerStr === q.answer;
+            const userAnswer = Array.from(scrambleAnswerBox.children).map(el => el.textContent).join(' ');
+            const isCorrect = userAnswer === q.answer;
             if (isCorrect) score++;
             
-            showFeedback(scrambleFeedbackEl, isCorrect, `정답입니다! 🎉`, `아쉬워요! 정답: ${q.answer}`);
-            proceedToNext(2500);
+            showFeedbackAndNextButton(scrambleFeedbackEl, isCorrect, `정답: ${q.answer}`);
         }
 
         // --- O/X 퀴즈 로직 ---
         function loadOxQuestion() {
             oxFeedbackEl.innerHTML = '';
-            document.querySelectorAll('#quiz-screen-ox button').forEach(b => b.disabled = false);
+            oxButtons.querySelectorAll('button').forEach(b => b.disabled = false);
             const q = currentQuestions[currentQuestionIndex];
             oxSentenceEl.textContent = `"${q.sentence}"`;
         }
@@ -341,15 +346,17 @@
         function checkOxAnswer(userAnswer) {
             if (isAnswered) return;
             isAnswered = true;
-            document.querySelectorAll('#quiz-screen-ox button').forEach(b => b.disabled = true);
+            oxButtons.querySelectorAll('button').forEach(b => b.disabled = true);
 
             const q = currentQuestions[currentQuestionIndex];
             const isCorrect = userAnswer === q.isCorrect;
             if (isCorrect) score++;
             
-            showFeedback(oxFeedbackEl, isCorrect, `정답! ${q.explanation}`, `오답! ${q.explanation}`);
-            proceedToNext(3000);
+            showFeedbackAndNextButton(oxFeedbackEl, isCorrect, q.explanation);
         }
     </script>
 </body>
 </html>
+
+
+
