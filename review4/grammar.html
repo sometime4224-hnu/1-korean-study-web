@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 문법 퀴즈</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto+Sans+KR', sans-serif;
+            touch-action: manipulation;
+        }
+        .quiz-screen { display: none; }
+        .quiz-screen.active { display: block; }
+        .feedback-correct { animation: correct-pulse 0.5s ease; }
+        .feedback-incorrect { animation: incorrect-shake 0.5s ease; }
+        @keyframes correct-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes incorrect-shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); } 20%, 40%, 60%, 80% { transform: translateX(8px); } }
+
+        /* 문장 배열 퀴즈 스타일 */
+        .scramble-word {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .scramble-word:hover {
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        #scramble-answer-box {
+            min-height: 5rem;
+            border-style: dashed;
+        }
+        .scramble-word.in-answer {
+            background-color: #e0e7ff; /* indigo-100 */
+            border-color: #a5b4fc; /* indigo-300 */
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-8 transform transition-all">
+
+        <!-- 시작 화면 -->
+        <div id="start-screen" class="active">
+            <h1 class="text-3xl font-bold text-center text-slate-800 mb-2">한국어 문법 퀴즈</h1>
+            <p class="text-center text-slate-500 mb-8">학습할 퀴즈 유형을 선택하세요.</p>
+            <div class="space-y-4">
+                <button onclick="startQuiz('mc')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                    📖 문법 고르기
+                </button>
+                <button onclick="startQuiz('scramble')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                    ✍️ 문장 배열하기
+                </button>
+                <button onclick="startQuiz('ox')" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                    ⭕❌ O/X 퀴즈
+                </button>
+            </div>
+        </div>
+
+        <!-- 공통 헤더 (뒤로가기 버튼, 진행도) -->
+        <div id="quiz-header" class="hidden items-center mb-6">
+            <button onclick="goToStartScreen()" class="text-slate-500 hover:text-slate-800 transition mr-4 p-2 rounded-full hover:bg-slate-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <h2 id="quiz-title" class="text-2xl font-bold text-slate-700 flex-grow"></h2>
+            <div id="quiz-progress" class="text-lg font-semibold text-slate-500"></div>
+        </div>
+
+        <!-- 문법 고르기 (MC) 퀴즈 화면 -->
+        <div id="quiz-screen-mc" class="quiz-screen">
+            <div class="bg-slate-50 p-6 rounded-lg mb-6 min-h-[100px] flex items-center justify-center">
+                <p id="mc-sentence" class="text-2xl md:text-3xl text-center leading-relaxed font-medium text-slate-800"></p>
+            </div>
+            <div id="mc-options" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <div id="mc-feedback" class="mt-6 text-center text-md min-h-[4rem]"></div>
+        </div>
+
+        <!-- 문장 배열하기 (Scramble) 퀴즈 화면 -->
+        <div id="quiz-screen-scramble" class="quiz-screen">
+            <p class="text-center text-slate-600 mb-4">아래 단어들을 클릭해서 올바른 문장을 만드세요.</p>
+            <div id="scramble-answer-box" class="bg-slate-50 p-4 rounded-lg mb-4 border-2 border-slate-300 flex flex-wrap gap-2 items-center justify-center">
+                <!-- 선택한 단어가 여기에 표시됩니다. -->
+            </div>
+            <div id="scramble-words-box" class="p-4 rounded-lg flex flex-wrap gap-3 items-center justify-center">
+                <!-- 단어 선택지가 여기에 표시됩니다. -->
+            </div>
+             <div class="mt-6 text-center">
+                <button id="scramble-submit" onclick="checkScrambleAnswer()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-lg shadow-md transition-transform transform hover:scale-105">확인</button>
+            </div>
+            <div id="scramble-feedback" class="mt-4 text-center text-md min-h-[4rem]"></div>
+        </div>
+
+        <!-- O/X 퀴즈 화면 -->
+        <div id="quiz-screen-ox" class="quiz-screen">
+            <p class="text-center text-slate-600 mb-4">다음 문장이 문법적으로 맞으면 O, 틀리면 X를 선택하세요.</p>
+            <div class="bg-slate-50 p-6 rounded-lg mb-6 min-h-[100px] flex items-center justify-center">
+                <p id="ox-sentence" class="text-2xl md:text-3xl text-center leading-relaxed font-medium text-slate-800"></p>
+            </div>
+            <div class="flex justify-center gap-6">
+                <button onclick="checkOxAnswer(true)" class="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full w-24 h-24 text-4xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-110">O</button>
+                <button onclick="checkOxAnswer(false)" class="bg-red-500 hover:bg-red-600 text-white font-bold rounded-full w-24 h-24 text-4xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-110">X</button>
+            </div>
+            <div id="ox-feedback" class="mt-6 text-center text-md min-h-[4rem]"></div>
+        </div>
+
+        <!-- 종료 화면 -->
+        <div id="end-screen" class="quiz-screen text-center">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">퀴즈 완료!</h2>
+            <div class="bg-blue-50 p-6 rounded-lg mb-6">
+                <p class="text-lg text-slate-600">최종 점수</p>
+                <p id="score" class="text-6xl font-bold text-blue-500 my-2"></p>
+            </div>
+            <button onclick="goToStartScreen()" class="w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg text-lg transition-transform transform hover:scale-105 shadow-md">
+                다른 퀴즈 풀기
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 데이터 ---
+        const quizzes = {
+            mc: {
+                title: "문법 고르기",
+                questions: [
+                    { sentence: "저는 학교{blank} 가요.", options: ["에", "를", "에서"], answer: "에", explanation: "'가다/오다' 같은 동사는 장소 뒤에 '에'를 사용해요." },
+                    { sentence: "친구가 책{blank} 읽어요.", options: ["을", "이", "은"], answer: "을", explanation: "행동의 대상이 되는 명사 뒤에는 '을/를'을 붙여요." },
+                    { sentence: "어제 영화가 아주 {blank}.", options: ["재미있었어요", "재미있어요", "재미있을 거예요"], answer: "재미있었어요", explanation: "'어제'는 과거이므로 '-았/었어요'를 사용해요." },
+                    { sentence: "날씨가 좋아서 기분{blank} 좋아요.", options: ["이", "을", "도"], answer: "이", explanation: "'좋다'의 주어는 '기분'이므로 주격 조사 '이/가'가 필요해요." },
+                    { sentence: "저는 매일 운동{blank}.", options: ["해요", "했어요", "할 거예요"], answer: "해요", explanation: "'매일' 반복되는 일은 현재 시제 '-아요/어요'를 사용해요." }
+                ]
+            },
+            scramble: {
+                title: "문장 배열하기",
+                questions: [
+                    { parts: ["저는", "김치를", "좋아해요"], answer: "저는 김치를 좋아해요" },
+                    { parts: ["어제", "영화를", "친구하고", "봤어요"], answer: "어제 친구하고 영화를 봤어요" },
+                    { parts: ["주말에", "뭐", "할 거예요?"], answer: "주말에 뭐 할 거예요?" },
+                    { parts: ["한국어가", "어렵지만", "재미있어요"], answer: "한국어가 어렵지만 재미있어요" },
+                    { parts: ["도서관에서", "책을", "읽을 거예요"], answer: "도서관에서 책을 읽을 거예요" }
+                ]
+            },
+            ox: {
+                title: "O/X 퀴즈",
+                questions: [
+                    { sentence: "저는 사과를 좋아해요.", isCorrect: true, explanation: "올바른 문장입니다." },
+                    { sentence: "어머니께서 방에 있습니다.", isCorrect: false, explanation: "높임말 '계십니다'를 사용해야 해요." },
+                    { sentence: "친구가 저에게 선물을 줬어요.", isCorrect: true, explanation: "올바른 문장입니다." },
+                    { sentence: "내일 공원에 갔어요.", isCorrect: false, explanation: "'내일'은 미래이므로 '갈 거예요'가 맞습니다." },
+                    { sentence: "저는 학생이 아니에요.", isCorrect: true, explanation: "명사 부정형 '이/가 아니다'의 올바른 활용입니다." }
+                ]
+            }
+        };
+
+        // --- 상태 변수 ---
+        let currentQuizType = '';
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+        let userScrambleAnswer = [];
+
+        // --- DOM 요소 ---
+        const startScreen = document.getElementById('start-screen');
+        const endScreen = document.getElementById('end-screen');
+        const quizHeader = document.getElementById('quiz-header');
+        const quizTitleEl = document.getElementById('quiz-title');
+        const quizProgressEl = document.getElementById('quiz-progress');
+        const scoreEl = document.getElementById('score');
+
+        // MC 퀴즈 요소
+        const mcScreen = document.getElementById('quiz-screen-mc');
+        const mcSentenceEl = document.getElementById('mc-sentence');
+        const mcOptionsEl = document.getElementById('mc-options');
+        const mcFeedbackEl = document.getElementById('mc-feedback');
+
+        // Scramble 퀴즈 요소
+        const scrambleScreen = document.getElementById('quiz-screen-scramble');
+        const scrambleAnswerBox = document.getElementById('scramble-answer-box');
+        const scrambleWordsBox = document.getElementById('scramble-words-box');
+        const scrambleFeedbackEl = document.getElementById('scramble-feedback');
+        const scrambleSubmitBtn = document.getElementById('scramble-submit');
+        
+        // OX 퀴즈 요소
+        const oxScreen = document.getElementById('quiz-screen-ox');
+        const oxSentenceEl = document.getElementById('ox-sentence');
+        const oxFeedbackEl = document.getElementById('ox-feedback');
+
+
+        // --- 공통 로직 ---
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('#app-container > div').forEach(div => div.classList.remove('active'));
+            document.getElementById(screenId)?.classList.add('active');
+            
+            const isQuizScreen = screenId.startsWith('quiz-screen');
+            quizHeader.style.display = isQuizScreen ? 'flex' : 'none';
+            if (screenId === 'start-screen') {
+                quizHeader.style.display = 'none';
+            }
+        }
+
+        function goToStartScreen() {
+            showScreen('start-screen');
+        }
+
+        function startQuiz(quizType) {
+            currentQuizType = quizType;
+            currentQuestions = shuffle([...quizzes[quizType].questions]);
+            currentQuestionIndex = 0;
+            score = 0;
+            isAnswered = false;
+
+            quizTitleEl.textContent = quizzes[quizType].title;
+            showScreen(`quiz-screen-${quizType}`);
+            loadNextQuestion();
+        }
+
+        function loadNextQuestion() {
+            if (currentQuestionIndex >= currentQuestions.length) {
+                showEndScreen();
+                return;
+            }
+            isAnswered = false;
+            quizProgressEl.textContent = `${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+
+            switch (currentQuizType) {
+                case 'mc': loadMcQuestion(); break;
+                case 'scramble': loadScrambleQuestion(); break;
+                case 'ox': loadOxQuestion(); break;
+            }
+        }
+        
+        function showEndScreen() {
+            scoreEl.textContent = `${Math.round((score / currentQuestions.length) * 100)}%`;
+            showScreen('end-screen');
+        }
+        
+        function showFeedback(element, isCorrect, correctText, incorrectText) {
+             element.innerHTML = isCorrect 
+                ? `<p class="font-bold text-green-500">${correctText}</p>`
+                : `<p class="font-bold text-red-500">${incorrectText}</p>`;
+        }
+        
+        function proceedToNext(delay) {
+             setTimeout(() => {
+                currentQuestionIndex++;
+                loadNextQuestion();
+            }, delay);
+        }
+
+        // --- 문법 고르기 (MC) 로직 ---
+        function loadMcQuestion() {
+            mcFeedbackEl.innerHTML = '';
+            const q = currentQuestions[currentQuestionIndex];
+            mcSentenceEl.innerHTML = q.sentence.replace('{blank}', `<span class="inline-block min-w-[5rem] text-center border-b-2 border-blue-400 font-bold">?</span>`);
+            mcOptionsEl.innerHTML = '';
+            shuffle([...q.options]).forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = "w-full p-4 border-2 rounded-lg text-lg font-semibold transition-all duration-200 shadow-sm bg-white text-slate-700 border-slate-300 hover:border-blue-400";
+                button.onclick = () => checkMcAnswer(button, option);
+                mcOptionsEl.appendChild(button);
+            });
+        }
+        
+        function checkMcAnswer(btn, answer) {
+            if (isAnswered) return;
+            isAnswered = true;
+            document.querySelectorAll('#mc-options button').forEach(b => b.disabled = true);
+            btn.classList.add('bg-blue-200', 'border-blue-500');
+
+            const q = currentQuestions[currentQuestionIndex];
+            const isCorrect = answer === q.answer;
+            if (isCorrect) score++;
+            
+            showFeedback(mcFeedbackEl, isCorrect, `정답! 🎉 ${q.explanation}`, `오답! 정답은 '${q.answer}'입니다. ${q.explanation}`);
+            proceedToNext(2500);
+        }
+
+        // --- 문장 배열하기 (Scramble) 로직 ---
+        function loadScrambleQuestion() {
+            scrambleFeedbackEl.innerHTML = '';
+            scrambleAnswerBox.innerHTML = '';
+            scrambleWordsBox.innerHTML = '';
+            scrambleSubmitBtn.disabled = false;
+            userScrambleAnswer = [];
+
+            const q = currentQuestions[currentQuestionIndex];
+            shuffle([...q.parts]).forEach(part => {
+                const wordEl = document.createElement('button');
+                wordEl.textContent = part;
+                wordEl.className = "scramble-word p-2 px-4 border-2 rounded-lg text-lg font-semibold bg-white shadow-sm";
+                wordEl.onclick = () => moveWord(wordEl, 'toAnswer');
+                scrambleWordsBox.appendChild(wordEl);
+            });
+        }
+
+        function moveWord(wordEl, direction) {
+            if (direction === 'toAnswer') {
+                userScrambleAnswer.push(wordEl.textContent);
+                wordEl.onclick = () => moveWord(wordEl, 'toWords');
+                scrambleAnswerBox.appendChild(wordEl);
+            } else {
+                userScrambleAnswer = userScrambleAnswer.filter(w => w !== wordEl.textContent);
+                wordEl.onclick = () => moveWord(wordEl, 'toAnswer');
+                scrambleWordsBox.appendChild(wordEl);
+            }
+        }
+
+        function checkScrambleAnswer() {
+            if (isAnswered) return;
+            isAnswered = true;
+            scrambleSubmitBtn.disabled = true;
+
+            const q = currentQuestions[currentQuestionIndex];
+            const userAnswerStr = userScrambleAnswer.join(' ');
+            const isCorrect = userAnswerStr === q.answer;
+            if (isCorrect) score++;
+            
+            showFeedback(scrambleFeedbackEl, isCorrect, `정답입니다! 🎉`, `아쉬워요! 정답: ${q.answer}`);
+            proceedToNext(2500);
+        }
+
+        // --- O/X 퀴즈 로직 ---
+        function loadOxQuestion() {
+            oxFeedbackEl.innerHTML = '';
+            document.querySelectorAll('#quiz-screen-ox button').forEach(b => b.disabled = false);
+            const q = currentQuestions[currentQuestionIndex];
+            oxSentenceEl.textContent = `"${q.sentence}"`;
+        }
+
+        function checkOxAnswer(userAnswer) {
+            if (isAnswered) return;
+            isAnswered = true;
+            document.querySelectorAll('#quiz-screen-ox button').forEach(b => b.disabled = true);
+
+            const q = currentQuestions[currentQuestionIndex];
+            const isCorrect = userAnswer === q.isCorrect;
+            if (isCorrect) score++;
+            
+            showFeedback(oxFeedbackEl, isCorrect, `정답! ${q.explanation}`, `오답! ${q.explanation}`);
+            proceedToNext(3000);
+        }
+    </script>
+</body>
+</html>
