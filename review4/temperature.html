@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 온도 표현 학습</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            -webkit-tap-highlight-color: transparent; /* 모바일 클릭 효과 제거 */
+        }
+        /* 예문 내용을 부드럽게 보여주기 위한 애니메이션 스타일 */
+        .reveal-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .reveal-content.show {
+            max-height: 150px; /* 내용에 맞게 충분한 높이 설정 */
+            padding-top: 0.75rem; /* 12px */
+            padding-bottom: 0.25rem; /* 4px */
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
+        <!-- 앱 제목 -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">한국어 온도 표현 학습 🌡️</h1>
+            <p class="text-gray-600 mt-2">'덥다'와 '춥다'의 비슷한 단어들을 배워봐요!</p>
+        </header>
+
+        <!-- 메인 콘텐츠 영역 (더운 표현, 추운 표현) -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+            
+            <!-- '더운' 느낌을 표현하는 단어 섹션 -->
+            <section class="bg-white p-5 rounded-2xl shadow-lg border border-gray-200">
+                <h2 class="text-2xl font-bold mb-6 text-center text-red-500">🥵 더운 느낌 (Hot)</h2>
+                <div class="space-y-4">
+                    <!-- 카드 1: 덥다 -->
+                    <div class="p-4 border rounded-xl bg-red-50 transition-all duration-300 hover:shadow-md">
+                        <div class="flex justify-between items-center cursor-pointer" onclick="toggleExample(this)">
+                            <div>
+                                <h3 class="text-xl font-semibold text-red-800">덥다</h3>
+                                <p class="text-sm text-gray-500">[deop-da] / Weather is hot</p>
+                            </div>
+                            <button class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold pointer-events-none">예문</button>
+                        </div>
+                        <div class="reveal-content">
+                            <p class="text-gray-800 text-sm"><strong>용도:</strong> 날씨가 더울 때 사용해요.</p>
+                            <p class="text-gray-800 mt-1"><strong>예문:</strong> 오늘 날씨가 정말 <span class="font-bold text-red-600">더워요</span>.</p>
+                        </div>
+                    </div>
+                    <!-- 카드 2: 따뜻하다 -->
+                    <div class="p-4 border rounded-xl bg-orange-50 transition-all duration-300 hover:shadow-md">
+                         <div class="flex justify-between items-center cursor-pointer" onclick="toggleExample(this)">
+                            <div>
+                                <h3 class="text-xl font-semibold text-orange-800">따뜻하다</h3>
+                                <p class="text-sm text-gray-500">[tta-tteut-ha-da] / Warm</p>
+                            </div>
+                            <button class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold pointer-events-none">예문</button>
+                        </div>
+                        <div class="reveal-content">
+                            <p class="text-gray-800 text-sm"><strong>용도:</strong> 춥지도 덥지도 않은 좋은 온도예요.</p>
+                            <p class="text-gray-800 mt-1"><strong>예문:</strong> 봄 날씨는 <span class="font-bold text-orange-600">따뜻해요</span>.</p>
+                        </div>
+                    </div>
+                     <!-- 카드 3: 뜨겁다 -->
+                    <div class="p-4 border rounded-xl bg-yellow-50 transition-all duration-300 hover:shadow-md">
+                         <div class="flex justify-between items-center cursor-pointer" onclick="toggleExample(this)">
+                            <div>
+                                <h3 class="text-xl font-semibold text-yellow-700">뜨겁다</h3>
+                                <p class="text-sm text-gray-500">[tteu-geop-da] / Hot to the touch</p>
+                            </div>
+                            <button class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-semibold pointer-events-none">예문</button>
+                        </div>
+                        <div class="reveal-content">
+                            <p class="text-gray-800 text-sm"><strong>용도:</strong> 커피나 국처럼 만지면 더운 물체에 사용해요.</p>
+                            <p class="text-gray-800 mt-1"><strong>예문:</strong> 이 커피는 너무 <span class="font-bold text-yellow-600">뜨거우니</span> 조심하세요.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- '추운' 느낌을 표현하는 단어 섹션 -->
+            <section class="bg-white p-5 rounded-2xl shadow-lg border border-gray-200">
+                <h2 class="text-2xl font-bold mb-6 text-center text-blue-500">🥶 추운 느낌 (Cold)</h2>
+                <div class="space-y-4">
+                     <!-- 카드 1: 춥다 -->
+                    <div class="p-4 border rounded-xl bg-blue-50 transition-all duration-300 hover:shadow-md">
+                        <div class="flex justify-between items-center cursor-pointer" onclick="toggleExample(this)">
+                            <div>
+                                <h3 class="text-xl font-semibold text-blue-800">춥다</h3>
+                                <p class="text-sm text-gray-500">[chup-da] / Weather is cold</p>
+                            </div>
+                            <button class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold pointer-events-none">예문</button>
+                        </div>
+                        <div class="reveal-content">
+                            <p class="text-gray-800 text-sm"><strong>용도:</strong> 날씨가 추울 때 사용해요.</p>
+                            <p class="text-gray-800 mt-1"><strong>예문:</strong> 겨울에는 날씨가 아주 <span class="font-bold text-blue-600">추워요</span>.</p>
+                        </div>
+                    </div>
+                    <!-- 카드 2: 쌀쌀하다 -->
+                    <div class="p-4 border rounded-xl bg-cyan-50 transition-all duration-300 hover:shadow-md">
+                         <div class="flex justify-between items-center cursor-pointer" onclick="toggleExample(this)">
+                            <div>
+                                <h3 class="text-xl font-semibold text-cyan-800">쌀쌀하다</h3>
+                                <p class="text-sm text-gray-500">[ssal-ssal-ha-da] / Chilly</p>
+                            </div>
+                            <button class="bg-cyan-500 text-white px-3 py-1 rounded-full text-sm font-semibold pointer-events-none">예문</button>
+                        </div>
+                        <div class="reveal-content">
+                            <p class="text-gray-800 text-sm"><strong>용도:</strong> 조금 추울 때 사용해요. 가을 날씨 같아요.</p>
+                            <p class="text-gray-800 mt-1"><strong>예문:</strong> 아침저녁으로 날씨가 <span class="font-bold text-cyan-600">쌀쌀해요</span>.</p>
+                        </div>
+                    </div>
+                     <!-- 카드 3: 시원하다 -->
+                    <div class="p-4 border rounded-xl bg-teal-50 transition-all duration-300 hover:shadow-md">
+                         <div class="flex justify-between items-center cursor-pointer" onclick="toggleExample(this)">
+                            <div>
+                                <h3 class="text-xl font-semibold text-teal-800">시원하다</h3>
+                                <p class="text-sm text-gray-500">[si-won-ha-da] / Cool, refreshing</p>
+                            </div>
+                            <button class="bg-teal-500 text-white px-3 py-1 rounded-full text-sm font-semibold pointer-events-none">예문</button>
+                        </div>
+                        <div class="reveal-content">
+                            <p class="text-gray-800 text-sm"><strong>용도:</strong> 더울 때 느끼는 좋은 서늘함이에요.</p>
+                            <p class="text-gray-800 mt-1"><strong>예문:</strong> 에어컨 바람이 <span class="font-bold text-teal-600">시원해요</span>.</p>
+                        </div>
+                    </div>
+                    <!-- 카드 4: 차갑다 -->
+                    <div class="p-4 border rounded-xl bg-indigo-50 transition-all duration-300 hover:shadow-md">
+                         <div class="flex justify-between items-center cursor-pointer" onclick="toggleExample(this)">
+                            <div>
+                                <h3 class="text-xl font-semibold text-indigo-800">차갑다</h3>
+                                <p class="text-sm text-gray-500">[cha-gap-da] / Cold to the touch</p>
+                            </div>
+                            <button class="bg-indigo-500 text-white px-3 py-1 rounded-full text-sm font-semibold pointer-events-none">예문</button>
+                        </div>
+                        <div class="reveal-content">
+                            <p class="text-gray-800 text-sm"><strong>용도:</strong> 얼음이나 찬물처럼 만지면 추운 물체에 사용해요.</p>
+                            <p class="text-gray-800 mt-1"><strong>예문:</strong> 이 물은 너무 <span class="font-bold text-indigo-600">차가워요</span>.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 앱 하단 푸터 -->
+        <footer class="text-center mt-10 text-gray-500 text-sm">
+            <p>한국어 학습자를 위한 온도 표현 학습 도우미</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleExample(element) {
+            // 클릭된 요소의 부모(카드) 안에서 예문 영역 찾기
+            const content = element.nextElementSibling;
+            const isShown = content.classList.contains('show');
+
+            // 같은 섹션에 있는 다른 열린 예문들을 모두 닫기
+            const section = element.closest('section');
+            section.querySelectorAll('.reveal-content.show').forEach(openContent => {
+                // 현재 클릭한 예문이 아니라면 닫음
+                if (openContent !== content) {
+                    openContent.classList.remove('show');
+                }
+            });
+
+            // 현재 클릭한 예문의 상태를 토글
+            if (isShown) {
+                content.classList.remove('show');
+            } else {
+                content.classList.add('show');
+            }
+        }
+    </script>
+</body>
+</html>
+
