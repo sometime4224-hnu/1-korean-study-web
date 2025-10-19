@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뇌를 성장시키는 행동의 원리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* 슬라이드 전환 효과 */
+        .slide-content {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .slide-hidden {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        .slide-visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        /* 언어 버튼 활성화 스타일 */
+        .lang-btn.active {
+            background-color: #3B82F6; /* blue-500 */
+            color: white;
+            font-weight: 600;
+        }
+        /* 번역 콘텐츠 구분선 스타일 */
+        .translation-divider {
+            width: 25%;
+            margin: 1rem auto;
+            border-color: #cbd5e1; /* slate-300 */
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl mx-auto">
+        <!-- 언어 선택기 -->
+        <div id="language-selector" class="flex flex-wrap justify-center gap-2 mb-4 p-2 bg-white rounded-xl shadow-md">
+            <!-- 언어 버튼은 JS로 생성됩니다 -->
+        </div>
+
+        <!-- 슬라이드 쇼 컨테이너 -->
+        <div class="bg-white rounded-2xl shadow-lg w-full aspect-[16/9] flex flex-col p-6 md:p-12 relative overflow-hidden">
+            <div id="slide-container" class="w-full h-full flex items-center justify-center overflow-y-auto">
+                <!-- 슬라이드 내용은 JS로 채워집니다 -->
+            </div>
+            
+            <!-- 네비게이션 -->
+            <div class="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-6 text-slate-600">
+                <button id="prev-btn" class="p-2 rounded-full hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <div id="slide-counter" class="text-sm font-medium text-slate-500"></div>
+                <button id="next-btn" class="p-2 rounded-full hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const slideData = [
+            // Slide 1: Title
+            {
+                ko: { type: 'title', title: "뇌는 '결과'가 아니라<br>'과정'을 기억합니다" },
+                en: { type: 'title', title: "The Brain Remembers the 'Process,'<br>Not the 'Result'" },
+                vi: { type: 'title', title: "Não Bộ Ghi Nhớ 'Quá Trình',<br>Chứ Không Phải 'Kết Quả'" },
+                ja: { type: 'title', title: "脳は「結果」ではなく<br>「過程」を記憶する" },
+                zh: { type: 'title', title: "大脑记住的是“过程”，<br>而不是“结果”" }
+            },
+            // Slide 2: Intro
+            {
+                ko: { type: 'text', content: "우리가 하는 모든 행동은 뇌에 흔적을 남깁니다. 그리고 뇌는 우리가 어떤 '결과'를 얻었는지보다, 그 결과를 **'어떤 행동으로'** 얻었는지를 훨씬 더 중요하게 기억합니다.<br><br>이것이 중요한 이유는, 뇌가 바로 그 '행동'을 다음에도 반복하도록 우리를 조종하기 때문입니다." },
+                en: { type: 'text', content: "Every action we take leaves a mark on our brain. The brain remembers **'how'** we achieved a result far more importantly than the result itself.<br><br>This is crucial because the brain then steers us to repeat that very same action." },
+                vi: { type: 'text', content: "Mọi hành động của chúng ta đều để lại dấu vết trong não bộ. Và não bộ ghi nhớ việc chúng ta đạt được kết quả **'bằng hành động nào'** một cách quan trọng hơn nhiều so với chính kết quả đó.<br><br>Điều này quan trọng vì não bộ sẽ điều khiển chúng ta lặp lại chính 'hành động' đó trong những lần tiếp theo." },
+                ja: { type: 'text', content: "私たちが行うすべての行動は、脳に痕跡を残します。そして脳は、私たちがどのような「結果」を得たかよりも、その結果を**「どのような行動で」**得たのかをはるかに重要に記憶します。<br><br>これが重要な理由は、脳がまさにその「行動」を次も繰り返すように私たちを操るからです。" },
+                zh: { type: 'text', content: "我们的每一个行为都会在大脑中留下痕迹。并且，大脑记住我们是**“通过什么行为”**获得结果，远比记住结果本身更重要。<br><br>这一点至关重要，因为大脑会引导我们重复同样的行为。" }
+            },
+            // Slide 3: Principle 1
+            {
+                ko: { type: 'principle', title: "원리 1: '보상받는 행동은 반복된다'", subtitle: "핵심 학자: **B.F. 스키너 (B.F. Skinner)**", content: "어떤 행동을 하고 나서 좋은 결과(보상)를 얻으면, 우리 뇌는 그 '행동'을 강화시킵니다. \"이 행동을 하니 보상이 따르네? 앞으로도 이 행동을 자주 사용해야겠다!\"라고 학습하는 것이죠." },
+                en: { type: 'principle', title: "Principle 1: 'Rewarded Actions are Repeated'", subtitle: "Key Scholar: **B.F. Skinner**", content: "When we get a good result (a reward) after an action, our brain reinforces that 'action'. It learns, \"This action led to a reward, so I should use it more often!\"" },
+                vi: { type: 'principle', title: "Nguyên tắc 1: 'Hành vi được thưởng sẽ được lặp lại'", subtitle: "Học giả chính: **B.F. Skinner**", content: "Khi chúng ta nhận được kết quả tốt (phần thưởng) sau một hành động, não bộ của chúng ta sẽ củng cố 'hành động' đó. Nó học rằng, \"Hành động này mang lại phần thưởng, vậy nên mình nên sử dụng nó thường xuyên hơn!\"" },
+                ja: { type: 'principle', title: "原理1：「報酬を得た行動は繰り返される」", subtitle: "主要な学者：**B.F. スキナー (B.F. Skinner)**", content: "ある行動をして良い結果（報酬）を得ると、私たちの脳はその「行動」を強化します。「この行動をすると報酬がもらえるのか。これからもこの行動を頻繁に使おう！」と学習するのです。" },
+                zh: { type: 'principle', title: "原则一：“得到奖励的行为会被重复”", subtitle: "核心学者：**B.F. 斯金纳 (B.F. Skinner)**", content: "当我们在做出某个行为后获得好的结果（奖励）时，我们的大脑就会强化那个“行为”。它会学习到：“这个行为带来了奖励，以后要多使用它！”" }
+            },
+            // Slide 4: Principle 1-2
+            {
+                ko: { type: 'comparison', title: "뇌는 '과정'보다 '결과'와 '효율'을 우선시합니다.", items: [ { label: 'A 행동', text: '어렵고 힘들지만 정석적인 노력 ➞ 좋은 성과' }, { label: 'B 행동', text: '쉽고 빠른 요령을 이용한 행동 ➞ 좋은 성과' } ], conclusion: "두 경우 모두 좋은 성과를 얻었지만, 뇌는 **'B 행동(쉽고 빠른 요령)'**을 훨씬 더 강력하게 강화시킵니다. 뇌는 에너지를 아끼고 즉각적인 보상을 좋아하기 때문입니다." },
+                en: { type: 'comparison', title: "The brain prioritizes 'results' and 'efficiency' over the 'process'.", items: [ { label: 'Action A', text: 'Difficult, standard effort ➞ Good outcome' }, { label: 'Action B', text: 'Easy, fast tricks ➞ Good outcome' } ], conclusion: "Although both led to a good outcome, the brain strongly reinforces **'Action B (easy tricks)'** because it's wired to save energy and prefer immediate rewards." },
+                vi: { type: 'comparison', title: "Não ưu tiên 'kết quả' và 'hiệu quả' hơn 'quá trình'.", items: [ { label: 'Hành động A', text: 'Nỗ lực theo khuôn mẫu, khó khăn ➞ Kết quả tốt' }, { label: 'Hành động B', text: 'Sử dụng mẹo nhanh, dễ dàng ➞ Kết quả tốt' } ], conclusion: "Mặc dù cả hai đều dẫn đến kết quả tốt, não bộ củng cố mạnh mẽ **'Hành động B (mẹo dễ dàng)'** vì nó được lập trình để tiết kiệm năng lượng và ưa thích phần thưởng tức thì." },
+                ja: { type: 'comparison', title: "脳は「過程」より「結果」と「効率」を優先します。", items: [ { label: 'Aの行動', text: '困難だが正攻法の努力 ➞ 良い成果' }, { label: 'Bの行動', text: '簡単で早い要領 ➞ 良い成果' } ], conclusion: "どちらも良い成果を得ましたが、脳は**「Bの行動（簡単な要領）」**をはるかに強く強化します。脳はエネルギーを節約し、即時報酬を好むからです。" },
+                zh: { type: 'comparison', title: "大脑优先考虑“结果”和“效率”，而非“过程”。", items: [ { label: '行为 A', text: '困难的正规努力 ➞ 好的成果' }, { label: '行为 B', text: '简单快捷的技巧 ➞ 好的成果' } ], conclusion: "虽然两种情况都获得了好的成果，但大脑会更强烈地强化**“行为B（简单技巧）”**，因为它天生倾向于节省能量并偏爱即时奖励。" }
+            },
+            // Slide 5: Principle 2
+            {
+                ko: { type: 'principle', title: "원리 2: '뇌는 지름길을 기억한다'", subtitle: "핵심 분야: **현대 뇌과학 (Modern Neuroscience)**", content: "'쉽고 빠른 요령'으로 좋은 성과를 얻으면, 뇌에서는 **'도파민(Dopamine)'**이 나옵니다. 이 신호는 뇌에게 이렇게 말합니다. \"방금 네가 쓴 그 '손쉬운 방법', 아주 중요해! 꼭 기억했다가 다음에 또 써먹어!\"" },
+                en: { type: 'principle', title: "Principle 2: 'The Brain Remembers Shortcuts'", subtitle: "Key Field: **Modern Neuroscience**", content: "When we get a good outcome via 'easy tricks', the brain releases **'Dopamine'**. This signal tells the brain: \"That 'easy method' you just used was very important! Remember it and use it again!\"" },
+                vi: { type: 'principle', title: "Nguyên tắc 2: 'Não bộ ghi nhớ những lối tắt'", subtitle: "Lĩnh vực chính: **Khoa học thần kinh hiện đại**", content: "Khi chúng ta đạt kết quả tốt bằng 'mẹo dễ dàng', não sẽ tiết ra **'Dopamine'**. Tín hiệu này nói với não: \"'Phương pháp dễ dàng' mà bạn vừa dùng rất quan trọng! Hãy nhớ và sử dụng lại nó nhé!\"" },
+                ja: { type: 'principle', title: "原理2：「脳は近道を記憶する」", subtitle: "主要な分野：**現代の脳科学**", content: "「簡単で早い要領」で良い成果を得ると、脳から**「ドーパミン」**が出ます。この信号は脳にこう伝えます。「今使った『簡単な方法』は非常に重要だ！覚えておいて、次もまた使うんだ！」" },
+                zh: { type: 'principle', title: "原则二：“大脑会记住捷径”", subtitle: "核心领域：**现代脑科学**", content: "当我们通过“简单技巧”获得好成果时，大脑会释放**“多巴胺”**。这个信号告诉大脑：“你刚才用的那个‘简单方法’非常重要！记住它，下次再用！”" }
+            },
+            // Slide 6: Principle 2-2
+            {
+                ko: { type: 'text', content: "이 신호가 반복되면, 그 '손쉬운 방법'은 우리 뇌에 **'습관 회로'**로 저장됩니다.<br><br>그러면 다음번에 비슷한 문제 상황을 만났을 때, '정석대로 노력해야지'라고 생각하기도 전에, 뇌가 먼저 자동적으로 '지난번 그 쉬운 방법 없나?' 하고 **지름길부터 찾게 됩니다.**" },
+                en: { type: 'text', content: "When this signal is repeated, that 'easy method' gets stored in our brain as a **'Habit Loop.'**<br><br>Then, next time we face a similar problem, before we can even consciously think, our brain automatically starts **looking for that shortcut first.**" },
+                vi: { type: 'text', content: "Khi tín hiệu này được lặp lại, 'phương pháp dễ dàng' đó sẽ được lưu trữ trong não chúng ta dưới dạng một **'Vòng lặp Thói quen.'**<br><br>Sau đó, lần tới khi đối mặt với vấn đề tương tự, não của chúng ta sẽ tự động **tìm kiếm lối tắt đó trước tiên** mà không cần suy nghĩ có ý thức." },
+                ja: { type: 'text', content: "この信号が繰り返されると、その「簡単な方法」は脳に**「習慣ループ」**として保存されます。<br><br>すると次に似た問題に直面したとき、意識的に考える前に、脳が自動的に**まずその近道を探し始めます。**" },
+                zh: { type: 'text', content: "当这个信号重复出现时，那个“简单方法”就会以**“习惯回路”**的形式储存在我们的大脑中。<br><br>然后，下次我们面临类似问题时，甚至在我们有意识地思考之前，大脑就会自动**首先寻找那条捷径。**" }
+            },
+            // Slide 7: Conclusion
+            {
+                ko: { type: 'conclusion', title: "여러분은 어떤 '뇌의 근육'을 키우고 있나요?", items: [ { label: '정석적인 노력', text: "뇌의 **'성실함과 문제 해결 근육'**을 키웁니다. 평생 도움이 될 튼튼한 자산이 됩니다." }, { label: '손쉬운 요령', text: "뇌의 **'지름길 탐색 근육'**만 키웁니다. 진짜 실력이 필요한 순간에는 힘을 발휘하지 못합니다." } ] },
+                en: { type: 'conclusion', title: "What 'Brain Muscle' Are You Building?", items: [ { label: 'Standard Effort', text: "Builds the brain's **'diligence and problem-solving muscle.'** A strong asset for life." }, { label: 'Easy Tricks', text: "Only builds the **'shortcut-seeking muscle.'** Powerless when real skills are needed." } ] },
+                vi: { type: 'conclusion', title: "Bạn đang rèn luyện 'Cơ bắp Não' nào?", items: [ { label: 'Nỗ lực tiêu chuẩn', text: "Xây dựng **'cơ bắp siêng năng và giải quyết vấn đề'** của não. Một tài sản vững chắc cho cuộc sống." }, { label: 'Mẹo dễ dàng', text: "Chỉ xây dựng **'cơ bắp tìm kiếm lối tắt.'** Bất lực khi cần kỹ năng thực sự." } ] },
+                ja: { type: 'conclusion', title: "どんな「脳の筋肉」を鍛えていますか？", items: [ { label: '正攻法の努力', text: "脳の**「誠実さと問題解決の筋肉」**を鍛えます。生涯役立つ丈夫な資産になります。" }, { label: '手っ取り早い要領', text: "脳の**「近道探索の筋肉」**だけを鍛えます。本当に実力が必要な時には無力です。" } ] },
+                zh: { type: 'conclusion', title: "你在锻炼哪一种“大脑肌肉”？", items: [ { label: '正规的努力', text: "锻炼大脑的**“勤奋与解决问题的肌肉”**。一生受用的宝贵资产。" }, { label: '简单的技巧', text: "只锻炼**“寻找捷径的肌肉”**。在需要真正技能时毫无用处。" } ] }
+            },
+            // Slide 8: Final Message
+            {
+                ko: { type: 'final', content: "결과가 같아 보여도,<br>**여러분이 '선택한 과정'이 여러분의 뇌를 만듭니다.**<br><br>순간의 편함 대신, 평생 도움이 될 튼튼한 '뇌 근육'을 키우는 현명한 선택을 하길 바랍니다." },
+                en: { type: 'final', content: "Even if the results look the same,<br>**the 'process you choose' is what builds your brain.**<br><br>Choose wisely to build a strong 'brain muscle' that will last a lifetime, instead of choosing momentary convenience." },
+                vi: { type: 'final', content: "Ngay cả khi kết quả có vẻ giống nhau,<br>**chính 'quá trình bạn chọn' mới là thứ tạo nên bộ não của bạn.**<br><br>Hãy lựa chọn một cách khôn ngoan để xây dựng một 'cơ bắp não' khỏe mạnh sẽ tồn tại suốt đời, thay vì chọn sự tiện lợi nhất thời." },
+                ja: { type: 'final', content: "結果が同じに見えても、<br>**あなたが「選んだ過程」があなたの脳を作ります。**<br><br>一瞬の楽さの代わりに、生涯役立つ丈夫な「脳の筋肉」を育てる賢明な選択をしてください。" },
+                zh: { type: 'final', content: "即使结果看起来一样，<br>**你所“选择的过程”正在塑造你的大脑。**<br><br>请明智地选择，锻炼能让你终身受益的强大“大脑肌肉”，而不是选择一时的便利。" }
+            }
+        ];
+
+        const languages = {
+            ko: '한국어',
+            en: 'English',
+            vi: 'Tiếng Việt',
+            ja: '日本語',
+            zh: '中文'
+        };
+
+        let currentSlide = 0;
+        let currentLang = 'ko';
+
+        const slideContainer = document.getElementById('slide-container');
+        const slideCounter = document.getElementById('slide-counter');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const langSelector = document.getElementById('language-selector');
+
+        function createLanguageButtons() {
+            Object.keys(languages).forEach(lang => {
+                const button = document.createElement('button');
+                button.textContent = languages[lang];
+                button.dataset.lang = lang;
+                button.className = 'lang-btn px-3 py-1.5 text-sm rounded-lg transition-colors hover:bg-slate-200';
+                if (lang === currentLang) {
+                    button.classList.add('active');
+                }
+                button.addEventListener('click', () => {
+                    currentLang = lang;
+                    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    renderSlide();
+                });
+                langSelector.appendChild(button);
+            });
+        }
+
+        function renderSlide() {
+            const koData = slideData[currentSlide]['ko'];
+            const selectedData = currentLang !== 'ko' ? slideData[currentSlide][currentLang] : null;
+            let html = '';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'slide-content slide-hidden w-full h-full flex flex-col items-center justify-center text-center px-4';
+            
+            switch (koData.type) {
+                case 'title':
+                    html = `<h1 class="text-4xl md:text-5xl font-bold text-slate-800 leading-tight">${koData.title}</h1>`;
+                    if (selectedData) {
+                        html += `<hr class="translation-divider my-4 md:my-6">`;
+                        html += `<h2 class="text-3xl md:text-4xl font-semibold text-slate-600 leading-tight">${selectedData.title}</h2>`;
+                    }
+                    break;
+                case 'text':
+                    html = `<p class="text-xl md:text-2xl text-slate-700 leading-relaxed">${koData.content}</p>`;
+                    if (selectedData) {
+                        html += `<hr class="translation-divider my-4 md:my-6">`;
+                        html += `<p class="text-lg md:text-xl text-slate-500 leading-relaxed">${selectedData.content}</p>`;
+                    }
+                    break;
+                case 'principle':
+                    html = `
+                        <div class="w-full">
+                            <h2 class="text-2xl md:text-3xl font-bold text-blue-600 mb-2">${koData.title}</h2>
+                            <p class="text-base md:text-lg text-slate-500 mb-6">${koData.subtitle}</p>
+                            <p class="text-lg md:text-xl text-slate-700 leading-relaxed">${koData.content}</p>
+                        </div>`;
+                    if (selectedData) {
+                        html += `<hr class="translation-divider my-4 md:my-6">`;
+                        html += `
+                        <div class="w-full">
+                            <h2 class="text-xl md:text-2xl font-bold text-blue-500 mb-2">${selectedData.title}</h2>
+                            <p class="text-sm md:text-base text-slate-400 mb-6">${selectedData.subtitle}</p>
+                            <p class="text-base md:text-lg text-slate-600 leading-relaxed">${selectedData.content}</p>
+                        </div>`;
+                    }
+                    break;
+                case 'comparison':
+                    html = `
+                        <div class="w-full">
+                            <h2 class="text-xl md:text-2xl font-semibold text-slate-800 mb-6">${koData.title}</h2>
+                            <div class="space-y-4 w-full max-w-2xl text-left text-base md:text-lg mx-auto">
+                                ${koData.items.map(item => `
+                                    <div class="bg-slate-50 p-4 rounded-lg">
+                                        <span class="font-bold text-blue-600">${item.label}:</span>
+                                        <span class="text-slate-700">${item.text}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <p class="mt-6 text-base md:text-lg text-slate-600 leading-relaxed">${koData.conclusion}</p>
+                        </div>`;
+                    if (selectedData) {
+                        html += `<hr class="translation-divider my-4 md:my-6">`;
+                        html += `
+                        <div class="w-full">
+                            <h2 class="text-lg md:text-xl font-semibold text-slate-600 mb-6">${selectedData.title}</h2>
+                            <div class="space-y-3 w-full max-w-2xl text-left text-sm md:text-base mx-auto">
+                                ${selectedData.items.map(item => `
+                                    <div class="bg-slate-50 p-3 rounded-lg">
+                                        <span class="font-bold text-blue-500">${item.label}:</span>
+                                        <span class="text-slate-600">${item.text}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <p class="mt-4 text-sm md:text-base text-slate-500 leading-relaxed">${selectedData.conclusion}</p>
+                        </div>`;
+                    }
+                    break;
+                case 'conclusion':
+                     html = `
+                        <div class="w-full">
+                            <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-8">${koData.title}</h2>
+                            <div class="flex flex-col md:flex-row gap-6 w-full max-w-3xl mx-auto">
+                                 ${koData.items.map(item => `
+                                    <div class="flex-1 bg-slate-50 p-6 rounded-xl">
+                                        <h3 class="font-bold text-lg md:text-xl text-blue-600 mb-2">${item.label}</h3>
+                                        <p class="text-slate-600 text-base md:text-lg">${item.text}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                    if (selectedData) {
+                        html += `<hr class="translation-divider my-4 md:my-6">`;
+                        html += `
+                        <div class="w-full">
+                            <h2 class="text-xl md:text-2xl font-bold text-slate-600 mb-6">${selectedData.title}</h2>
+                            <div class="flex flex-col md:flex-row gap-4 w-full max-w-3xl mx-auto">
+                                 ${selectedData.items.map(item => `
+                                    <div class="flex-1 bg-slate-50 p-4 rounded-xl">
+                                        <h3 class="font-bold text-base md:text-lg text-blue-500 mb-2">${item.label}</h3>
+                                        <p class="text-slate-500 text-sm md:text-base">${item.text}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                    }
+                    break;
+                case 'final':
+                    html = `<p class="text-2xl md:text-3xl text-slate-800 font-semibold leading-relaxed">${koData.content}</p>`;
+                    if (selectedData) {
+                        html += `<hr class="translation-divider my-4 md:my-6">`;
+                        html += `<p class="text-xl md:text-2xl text-slate-600 font-medium leading-relaxed">${selectedData.content}</p>`;
+                    }
+                    break;
+            }
+            
+            contentDiv.innerHTML = html;
+            
+            if (slideContainer.firstElementChild) {
+                slideContainer.firstElementChild.classList.remove('slide-visible');
+                slideContainer.firstElementChild.classList.add('slide-hidden');
+                setTimeout(() => {
+                    slideContainer.innerHTML = '';
+                    slideContainer.appendChild(contentDiv);
+                    setTimeout(() => {
+                        contentDiv.classList.remove('slide-hidden');
+                        contentDiv.classList.add('slide-visible');
+                    }, 50);
+                }, 500);
+            } else {
+                slideContainer.innerHTML = '';
+                slideContainer.appendChild(contentDiv);
+                setTimeout(() => {
+                    contentDiv.classList.remove('slide-hidden');
+                    contentDiv.classList.add('slide-visible');
+                }, 50);
+            }
+            
+            updateControls();
+        }
+
+        function updateControls() {
+            slideCounter.textContent = `${currentSlide + 1} / ${slideData.length}`;
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slideData.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                renderSlide();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < slideData.length - 1) {
+                currentSlide++;
+                renderSlide();
+            }
+        });
+
+        // 초기화
+        createLanguageButtons();
+        renderSlide();
+    </script>
+
+</body>
+</html>
+
