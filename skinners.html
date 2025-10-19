@@ -9,6 +9,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            /* 기본 글자 크기를 뷰포트 너비에 따라 조정 */
+            font-size: clamp(14px, 1.2vw, 16px);
         }
         /* 슬라이드 전환 효과 */
         .slide-content {
@@ -31,9 +33,30 @@
         /* 번역 콘텐츠 구분선 스타일 */
         .translation-divider {
             width: 25%;
-            margin: 1rem auto;
+            margin: clamp(0.75rem, 2vw, 1.5rem) auto;
             border-color: #cbd5e1; /* slate-300 */
         }
+        .diagram-arrow {
+            color: #94a3b8; /* slate-400 */
+        }
+        
+        /* --- 자동 크기 조정을 위한 스타일 --- */
+        /* 컨테이너 내부 여백을 유동적으로 조정 */
+        .slide-container-padding {
+            padding: clamp(1rem, 5vw, 3rem);
+        }
+        /* 제목 텍스트 크기 */
+        .text-main-title { font-size: clamp(2rem, 5vw, 3.75rem); }
+        .text-sub-title { font-size: clamp(1.5rem, 3.5vw, 2.5rem); } /* 크기 조정 */
+        /* 원리/이론 제목 텍스트 크기 */
+        .text-principle-title { font-size: clamp(1.5rem, 3.5vw, 2.25rem); }
+        .text-principle-subtitle { font-size: clamp(0.9rem, 1.8vw, 1.125rem); }
+        /* 본문 텍스트 크기 */
+        .text-body { font-size: clamp(1rem, 2.2vw, 1.25rem); }
+        .text-sub-body { font-size: clamp(0.9rem, 2vw, 1.1rem); }
+        /* 라벨/설명 텍스트 크기 */
+        .text-label { font-size: clamp(0.9rem, 2vw, 1.125rem); }
+        .text-description { font-size: clamp(0.85rem, 1.8vw, 1rem); }
     </style>
 </head>
 <body class="bg-slate-100 flex flex-col items-center justify-center min-h-screen p-4">
@@ -45,7 +68,7 @@
         </div>
 
         <!-- 슬라이드 쇼 컨테이너 -->
-        <div class="bg-white rounded-2xl shadow-lg w-full aspect-[16/9] flex flex-col p-6 md:p-12 relative overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-lg w-full aspect-[16/9] flex flex-col relative overflow-hidden slide-container-padding">
             <div id="slide-container" class="w-full h-full flex items-center justify-center overflow-y-auto">
                 <!-- 슬라이드 내용은 JS로 채워집니다 -->
             </div>
@@ -69,7 +92,19 @@
 
     <script>
         const slideData = [
-            // Slide 1: Title
+            // 슬라이드 1: 도입 메시지 (신규)
+            {
+                ko: { 
+                    type: 'intro', 
+                    lines: [
+                        { lang: '한국어', text: '진정으로 나 자신을 위해 행동하세요.' },
+                        { lang: '日本語', text: '真に自分自身のために行動してください。' },
+                        { lang: '中文', text: '为真正的自己而行动。' },
+                        { lang: 'Tiếng Việt', text: 'Hãy hành động vì chính bản thân bạn.' }
+                    ] 
+                }
+            },
+            // 슬라이드 2: 제목
             {
                 ko: { type: 'title', title: "뇌는 '결과'가 아니라<br>'과정'을 기억합니다" },
                 en: { type: 'title', title: "The Brain Remembers the 'Process,'<br>Not the 'Result'" },
@@ -77,61 +112,77 @@
                 ja: { type: 'title', title: "脳は「結果」ではなく<br>「過程」を記憶する" },
                 zh: { type: 'title', title: "大脑记住的是“过程”，<br>而不是“结果”" }
             },
-            // Slide 2: Intro
+            // 슬라이드 3: 도입
             {
-                ko: { type: 'text', content: "우리가 하는 모든 행동은 뇌에 흔적을 남깁니다. 그리고 뇌는 우리가 어떤 '결과'를 얻었는지보다, 그 결과를 **'어떤 행동으로'** 얻었는지를 훨씬 더 중요하게 기억합니다.<br><br>이것이 중요한 이유는, 뇌가 바로 그 '행동'을 다음에도 반복하도록 우리를 조종하기 때문입니다." },
-                en: { type: 'text', content: "Every action we take leaves a mark on our brain. The brain remembers **'how'** we achieved a result far more importantly than the result itself.<br><br>This is crucial because the brain then steers us to repeat that very same action." },
-                vi: { type: 'text', content: "Mọi hành động của chúng ta đều để lại dấu vết trong não bộ. Và não bộ ghi nhớ việc chúng ta đạt được kết quả **'bằng hành động nào'** một cách quan trọng hơn nhiều so với chính kết quả đó.<br><br>Điều này quan trọng vì não bộ sẽ điều khiển chúng ta lặp lại chính 'hành động' đó trong những lần tiếp theo." },
-                ja: { type: 'text', content: "私たちが行うすべての行動は、脳に痕跡を残します。そして脳は、私たちがどのような「結果」を得たかよりも、その結果を**「どのような行動で」**得たのかをはるかに重要に記憶します。<br><br>これが重要な理由は、脳がまさにその「行動」を次も繰り返すように私たちを操るからです。" },
-                zh: { type: 'text', content: "我们的每一个行为都会在大脑中留下痕迹。并且，大脑记住我们是**“通过什么行为”**获得结果，远比记住结果本身更重要。<br><br>这一点至关重要，因为大脑会引导我们重复同样的行为。" }
+                ko: { type: 'text', content: "우리가 하는 모든 행동은 뇌에 흔적을 남깁니다. 그리고 뇌는 우리가 어떤 '결과'를 얻었는지보다, 그 결과를 <strong>'어떤 행동으로'</strong> 얻었는지를 훨씬 더 중요하게 기억합니다.<br><br>이것이 중요한 이유는, 뇌가 바로 그 '행동'을 다음에도 반복하도록 우리를 조종하기 때문입니다." },
+                en: { type: 'text', content: "Every action we take leaves a mark on our brain. The brain remembers <strong>'how'</strong> we achieved a result far more importantly than the result itself.<br><br>This is crucial because the brain then steers us to repeat that very same action." },
+                vi: { type: 'text', content: "Mọi hành động của chúng ta đều để lại dấu vết trong não bộ. Và não bộ ghi nhớ việc chúng ta đạt được kết quả <strong>'bằng hành động nào'</strong> một cách quan trọng hơn nhiều so với chính kết quả đó.<br><br>Điều này quan trọng vì não bộ sẽ điều khiển chúng ta lặp lại chính 'hành động' đó trong những lần tiếp theo." },
+                ja: { type: 'text', content: "私たちが行うすべての行動は、脳に痕跡を残します。そして脳は、私たちがどのような「結果」を得たかよりも、その結果を<strong>「どのような行動で」</strong>得たのかをはるかに重要に記憶します。<br><br>これが重要な理由は、脳がまさにその「行動」を次も繰り返すように私たちを操るからです。" },
+                zh: { type: 'text', content: "我们的每一个行为都会在大脑中留下痕跡。并且，大脑记住我们是<strong>“通过什么行为”</strong>获得结果，远比记住结果本身更重要。<br><br>这一点至关重要，因为大脑会引导我们重复同样的行为。" }
             },
-            // Slide 3: Principle 1
+            // 슬라이드 4: 원리 1
             {
-                ko: { type: 'principle', title: "원리 1: '보상받는 행동은 반복된다'", subtitle: "핵심 학자: **B.F. 스키너 (B.F. Skinner)**", content: "어떤 행동을 하고 나서 좋은 결과(보상)를 얻으면, 우리 뇌는 그 '행동'을 강화시킵니다. \"이 행동을 하니 보상이 따르네? 앞으로도 이 행동을 자주 사용해야겠다!\"라고 학습하는 것이죠." },
-                en: { type: 'principle', title: "Principle 1: 'Rewarded Actions are Repeated'", subtitle: "Key Scholar: **B.F. Skinner**", content: "When we get a good result (a reward) after an action, our brain reinforces that 'action'. It learns, \"This action led to a reward, so I should use it more often!\"" },
-                vi: { type: 'principle', title: "Nguyên tắc 1: 'Hành vi được thưởng sẽ được lặp lại'", subtitle: "Học giả chính: **B.F. Skinner**", content: "Khi chúng ta nhận được kết quả tốt (phần thưởng) sau một hành động, não bộ của chúng ta sẽ củng cố 'hành động' đó. Nó học rằng, \"Hành động này mang lại phần thưởng, vậy nên mình nên sử dụng nó thường xuyên hơn!\"" },
-                ja: { type: 'principle', title: "原理1：「報酬を得た行動は繰り返される」", subtitle: "主要な学者：**B.F. スキナー (B.F. Skinner)**", content: "ある行動をして良い結果（報酬）を得ると、私たちの脳はその「行動」を強化します。「この行動をすると報酬がもらえるのか。これからもこの行動を頻繁に使おう！」と学習するのです。" },
-                zh: { type: 'principle', title: "原则一：“得到奖励的行为会被重复”", subtitle: "核心学者：**B.F. 斯金纳 (B.F. Skinner)**", content: "当我们在做出某个行为后获得好的结果（奖励）时，我们的大脑就会强化那个“行为”。它会学习到：“这个行为带来了奖励，以后要多使用它！”" }
+                ko: { type: 'principle', title: "원리 1: '보상받는 행동은 반복된다'", subtitle: "핵심 학자: <strong>B.F. 스키너 (B.F. Skinner)</strong>", content: "어떤 행동을 하고 나서 좋은 결과(보상)를 얻으면, 우리 뇌는 그 '행동'을 강화시킵니다. \"이 행동을 하니 보상이 따르네? 앞으로도 이 행동을 자주 사용해야겠다!\"라고 학습하는 것이죠." },
+                en: { type: 'principle', title: "Principle 1: 'Rewarded Actions are Repeated'", subtitle: "Key Scholar: <strong>B.F. Skinner</strong>", content: "When we get a good result (a reward) after an action, our brain reinforces that 'action'. It learns, \"This action led to a reward, so I should use it more often!\"" },
+                vi: { type: 'principle', title: "Nguyên tắc 1: 'Hành vi được thưởng sẽ được lặp lại'", subtitle: "Học giả chính: <strong>B.F. Skinner</strong>", content: "Khi chúng ta nhận được kết quả tốt (phần thưởng) sau một hành động, não bộ của chúng ta sẽ củng cố 'hành động' đó. Nó học rằng, \"Hành động này mang lại phần thưởng, vậy nên mình nên sử dụng nó thường xuyên hơn!\"" },
+                ja: { type: 'principle', title: "原理1：「報酬を得た行動は繰り返される」", subtitle: "主要な学者：<strong>B.F. スキナー (B.F. Skinner)</strong>", content: "ある行動をして良い結果（報酬）を得ると、私たちの脳はその「行動」を強化します。「この行動をすると報酬がもらえるのか。これからもこの行動を頻繁に使おう！」と学習するのです。" },
+                zh: { type: 'principle', title: "原则一：“得到奖励的行为会被重复”", subtitle: "核心学者：<strong>B.F. 斯金纳 (B.F. Skinner)</strong>", content: "当我们在做出某个行为后获得好的结果（奖励）时，我们的大脑就会强化那个“行为”。它会学习到：“这个行为带来了奖励，以后要多使用它！”" }
             },
-            // Slide 4: Principle 1-2
+            // 슬라이드 5: 원리 1-2
             {
-                ko: { type: 'comparison', title: "뇌는 '과정'보다 '결과'와 '효율'을 우선시합니다.", items: [ { label: 'A 행동', text: '어렵고 힘들지만 정석적인 노력 ➞ 좋은 성과' }, { label: 'B 행동', text: '쉽고 빠른 요령을 이용한 행동 ➞ 좋은 성과' } ], conclusion: "두 경우 모두 좋은 성과를 얻었지만, 뇌는 **'B 행동(쉽고 빠른 요령)'**을 훨씬 더 강력하게 강화시킵니다. 뇌는 에너지를 아끼고 즉각적인 보상을 좋아하기 때문입니다." },
-                en: { type: 'comparison', title: "The brain prioritizes 'results' and 'efficiency' over the 'process'.", items: [ { label: 'Action A', text: 'Difficult, standard effort ➞ Good outcome' }, { label: 'Action B', text: 'Easy, fast tricks ➞ Good outcome' } ], conclusion: "Although both led to a good outcome, the brain strongly reinforces **'Action B (easy tricks)'** because it's wired to save energy and prefer immediate rewards." },
-                vi: { type: 'comparison', title: "Não ưu tiên 'kết quả' và 'hiệu quả' hơn 'quá trình'.", items: [ { label: 'Hành động A', text: 'Nỗ lực theo khuôn mẫu, khó khăn ➞ Kết quả tốt' }, { label: 'Hành động B', text: 'Sử dụng mẹo nhanh, dễ dàng ➞ Kết quả tốt' } ], conclusion: "Mặc dù cả hai đều dẫn đến kết quả tốt, não bộ củng cố mạnh mẽ **'Hành động B (mẹo dễ dàng)'** vì nó được lập trình để tiết kiệm năng lượng và ưa thích phần thưởng tức thì." },
-                ja: { type: 'comparison', title: "脳は「過程」より「結果」と「効率」を優先します。", items: [ { label: 'Aの行動', text: '困難だが正攻法の努力 ➞ 良い成果' }, { label: 'Bの行動', text: '簡単で早い要領 ➞ 良い成果' } ], conclusion: "どちらも良い成果を得ましたが、脳は**「Bの行動（簡単な要領）」**をはるかに強く強化します。脳はエネルギーを節約し、即時報酬を好むからです。" },
-                zh: { type: 'comparison', title: "大脑优先考虑“结果”和“效率”，而非“过程”。", items: [ { label: '行为 A', text: '困难的正规努力 ➞ 好的成果' }, { label: '行为 B', text: '简单快捷的技巧 ➞ 好的成果' } ], conclusion: "虽然两种情况都获得了好的成果，但大脑会更强烈地强化**“行为B（简单技巧）”**，因为它天生倾向于节省能量并偏爱即时奖励。" }
+                ko: { type: 'comparison', title: "뇌는 '과정'보다 '결과'와 '효율'을 우선시합니다.", items: [ { label: 'A 행동', text: '어렵고 힘들지만 정석적인 노력 ➞ 좋은 성과' }, { label: 'B 행동', text: '쉽고 빠른 요령을 이용한 행동 ➞ 좋은 성과' } ], conclusion: "두 경우 모두 좋은 성과를 얻었지만, 뇌는 <strong>'B 행동(쉽고 빠른 요령)'</strong>을 훨씬 더 강력하게 강화시킵니다. 뇌는 에너지를 아끼고 즉각적인 보상을 좋아하기 때문입니다." },
+                en: { type: 'comparison', title: "The brain prioritizes 'results' and 'efficiency' over the 'process'.", items: [ { label: 'Action A', text: 'Difficult, standard effort ➞ Good outcome' }, { label: 'Action B', text: 'Easy, fast tricks ➞ Good outcome' } ], conclusion: "Although both led to a good outcome, the brain strongly reinforces <strong>'Action B (easy tricks)'</strong> because it's wired to save energy and prefer immediate rewards." },
+                vi: { type: 'comparison', title: "Não ưu tiên 'kết quả' và 'hiệu quả' hơn 'quá trình'.", items: [ { label: 'Hành động A', text: 'Nỗ lực theo khuôn mẫu, khó khăn ➞ Kết quả tốt' }, { label: 'Hành động B', text: 'Sử dụng mẹo nhanh, dễ dàng ➞ Kết quả tốt' } ], conclusion: "Mặc dù cả hai đều dẫn đến kết quả tốt, não bộ củng cố mạnh mẽ <strong>'Hành động B (mẹo dễ dàng)'</strong> vì nó được lập trình để tiết kiệm năng lượng và ưa thích phần thưởng tức thì." },
+                ja: { type: 'comparison', title: "脳は「過程」より「結果」と「効率」を優先します。", items: [ { label: 'Aの行動', text: '困難だが正攻法の努力 ➞ 良い成果' }, { label: 'Bの行動', text: '簡単で早い要領 ➞ 良い成果' } ], conclusion: "どちらも良い成果を得ましたが、脳は<strong>「Bの行動（簡単な要領）」</strong>をはるかに強く強化します。脳はエネルギーを節約し、即時報酬を好むからです。" },
+                zh: { type: 'comparison', title: "大脑优先考虑“结果”和“效率”，而非“过程”。", items: [ { label: '行为 A', text: '困难的正规努力 ➞ 好的成果' }, { label: '行为 B', text: '简单快捷的技巧 ➞ 好的成果' } ], conclusion: "虽然两种情况都获得了好的成果，但大脑会更强烈地强化<strong>“行为B（简单技巧）”</strong>，因为它天生倾向于节省能量并偏爱即时奖励。" }
             },
-            // Slide 5: Principle 2
+             // 슬라이드 6: 도식
             {
-                ko: { type: 'principle', title: "원리 2: '뇌는 지름길을 기억한다'", subtitle: "핵심 분야: **현대 뇌과학 (Modern Neuroscience)**", content: "'쉽고 빠른 요령'으로 좋은 성과를 얻으면, 뇌에서는 **'도파민(Dopamine)'**이 나옵니다. 이 신호는 뇌에게 이렇게 말합니다. \"방금 네가 쓴 그 '손쉬운 방법', 아주 중요해! 꼭 기억했다가 다음에 또 써먹어!\"" },
-                en: { type: 'principle', title: "Principle 2: 'The Brain Remembers Shortcuts'", subtitle: "Key Field: **Modern Neuroscience**", content: "When we get a good outcome via 'easy tricks', the brain releases **'Dopamine'**. This signal tells the brain: \"That 'easy method' you just used was very important! Remember it and use it again!\"" },
-                vi: { type: 'principle', title: "Nguyên tắc 2: 'Não bộ ghi nhớ những lối tắt'", subtitle: "Lĩnh vực chính: **Khoa học thần kinh hiện đại**", content: "Khi chúng ta đạt kết quả tốt bằng 'mẹo dễ dàng', não sẽ tiết ra **'Dopamine'**. Tín hiệu này nói với não: \"'Phương pháp dễ dàng' mà bạn vừa dùng rất quan trọng! Hãy nhớ và sử dụng lại nó nhé!\"" },
-                ja: { type: 'principle', title: "原理2：「脳は近道を記憶する」", subtitle: "主要な分野：**現代の脳科学**", content: "「簡単で早い要領」で良い成果を得ると、脳から**「ドーパミン」**が出ます。この信号は脳にこう伝えます。「今使った『簡単な方法』は非常に重要だ！覚えておいて、次もまた使うんだ！」" },
-                zh: { type: 'principle', title: "原则二：“大脑会记住捷径”", subtitle: "核心领域：**现代脑科学**", content: "当我们通过“简单技巧”获得好成果时，大脑会释放**“多巴胺”**。这个信号告诉大脑：“你刚才用的那个‘简单方法’非常重要！记住它，下次再用！”" }
+                ko: { type: 'diagram', title: "뇌의 '습관 형성' 과정", steps: ['행동 (선택)', '성과 (결과)', '뇌의 피드백 (강화)'], description: "이 과정이 반복되면서, 특정 행동은 우리의 의지와 상관없이 자동적으로 튀어나오는 '습관'이 됩니다." },
+                en: { type: 'diagram', title: "The Brain's 'Habit Formation' Process", steps: ['Action (Choice)', 'Outcome (Result)', "Brain's Feedback (Reinforcement)"], description: "As this cycle repeats, a specific action becomes a 'habit' that occurs automatically, regardless of our willpower." },
+                vi: { type: 'diagram', title: "Quá trình 'Hình thành Thói quen' của Não bộ", steps: ['Hành động (Lựa chọn)', 'Kết quả', 'Phản hồi của Não (Củng cố)'], description: "Khi chu trình này lặp lại, một hành động cụ thể sẽ trở thành 'thói quen' xuất hiện một cách tự động, bất kể ý chí của chúng ta." },
+                ja: { type: 'diagram', title: "脳の「習慣形成」プロセス", steps: ['行動（選択）', '成果（結果）', '脳のフィードバック（強化）'], description: "このプロセスが繰り返されることで、特定の行動は私たちの意志とは関係なく自動的に現れる「習慣」となります。" },
+                zh: { type: 'diagram', title: "大脑的“习惯养成”过程", steps: ['行为 (选择)', '成果 (结果)', '大脑反馈 (强化)'], description: "随着这个循环的重复，特定的行为会成为一种“习惯”，自动发生，不受我们意志的控制。" }
             },
-            // Slide 6: Principle 2-2
+            // 슬라이드 7: 원리 2
             {
-                ko: { type: 'text', content: "이 신호가 반복되면, 그 '손쉬운 방법'은 우리 뇌에 **'습관 회로'**로 저장됩니다.<br><br>그러면 다음번에 비슷한 문제 상황을 만났을 때, '정석대로 노력해야지'라고 생각하기도 전에, 뇌가 먼저 자동적으로 '지난번 그 쉬운 방법 없나?' 하고 **지름길부터 찾게 됩니다.**" },
-                en: { type: 'text', content: "When this signal is repeated, that 'easy method' gets stored in our brain as a **'Habit Loop.'**<br><br>Then, next time we face a similar problem, before we can even consciously think, our brain automatically starts **looking for that shortcut first.**" },
-                vi: { type: 'text', content: "Khi tín hiệu này được lặp lại, 'phương pháp dễ dàng' đó sẽ được lưu trữ trong não chúng ta dưới dạng một **'Vòng lặp Thói quen.'**<br><br>Sau đó, lần tới khi đối mặt với vấn đề tương tự, não của chúng ta sẽ tự động **tìm kiếm lối tắt đó trước tiên** mà không cần suy nghĩ có ý thức." },
-                ja: { type: 'text', content: "この信号が繰り返されると、その「簡単な方法」は脳に**「習慣ループ」**として保存されます。<br><br>すると次に似た問題に直面したとき、意識的に考える前に、脳が自動的に**まずその近道を探し始めます。**" },
-                zh: { type: 'text', content: "当这个信号重复出现时，那个“简单方法”就会以**“习惯回路”**的形式储存在我们的大脑中。<br><br>然后，下次我们面临类似问题时，甚至在我们有意识地思考之前，大脑就会自动**首先寻找那条捷径。**" }
+                ko: { type: 'principle', title: "원리 2: '뇌는 지름길을 기억한다'", subtitle: "핵심 분야: <strong>현대 뇌과학 (Modern Neuroscience)</strong>", content: "'쉽고 빠른 요령'으로 좋은 성과를 얻으면, 뇌에서는 <strong>'도파민(Dopamine)'</strong>이 나옵니다. 이 신호는 뇌에게 이렇게 말합니다. \"방금 네가 쓴 그 '손쉬운 방법', 아주 중요해! 꼭 기억했다가 다음에 또 써먹어!\"" },
+                en: { type: 'principle', title: "Principle 2: 'The Brain Remembers Shortcuts'", subtitle: "Key Field: <strong>Modern Neuroscience</strong>", content: "When we get a good outcome via 'easy tricks', the brain releases <strong>'Dopamine'</strong>. This signal tells the brain: \"That 'easy method' you just used was very important! Remember it and use it again!\"" },
+                vi: { type: 'principle', title: "Nguyên tắc 2: 'Não bộ ghi nhớ những lối tắt'", subtitle: "Lĩnh vực chính: <strong>Khoa học thần kinh hiện đại</strong>", content: "Khi chúng ta đạt kết quả tốt bằng 'mẹo dễ dàng', não sẽ tiết ra <strong>'Dopamine'</strong>. Tín hiệu này nói với não: \"'Phương pháp dễ dàng' mà bạn vừa dùng rất quan trọng! Hãy nhớ và sử dụng lại nó nhé!\"" },
+                ja: { type: 'principle', title: "原理2：「脳は近道を記憶する」", subtitle: "主要な分野：<strong>現代の脳科学</strong>", content: "「簡単で早い要領」で良い成果を得ると、脳から<strong>「ドーパミン」</strong>が出ます。この信号は脳にこう伝えます。「今使った『簡単な方法』は非常に重要だ！覚えておいて、次もまた使うんだ！」" },
+                zh: { type: 'principle', title: "原则二：“大脑会记住捷径”", subtitle: "核心领域：<strong>现代脑科学</strong>", content: "当我们通过“简单技巧”获得好成果时，大脑会释放<strong>“多巴胺”</strong>。这个信号告诉大脑：“你刚才用的那个‘简单方法’非常重要！记住它，下次再用！”" }
             },
-            // Slide 7: Conclusion
+            // 슬라이드 8: 원리 2-2
             {
-                ko: { type: 'conclusion', title: "여러분은 어떤 '뇌의 근육'을 키우고 있나요?", items: [ { label: '정석적인 노력', text: "뇌의 **'성실함과 문제 해결 근육'**을 키웁니다. 평생 도움이 될 튼튼한 자산이 됩니다." }, { label: '손쉬운 요령', text: "뇌의 **'지름길 탐색 근육'**만 키웁니다. 진짜 실력이 필요한 순간에는 힘을 발휘하지 못합니다." } ] },
-                en: { type: 'conclusion', title: "What 'Brain Muscle' Are You Building?", items: [ { label: 'Standard Effort', text: "Builds the brain's **'diligence and problem-solving muscle.'** A strong asset for life." }, { label: 'Easy Tricks', text: "Only builds the **'shortcut-seeking muscle.'** Powerless when real skills are needed." } ] },
-                vi: { type: 'conclusion', title: "Bạn đang rèn luyện 'Cơ bắp Não' nào?", items: [ { label: 'Nỗ lực tiêu chuẩn', text: "Xây dựng **'cơ bắp siêng năng và giải quyết vấn đề'** của não. Một tài sản vững chắc cho cuộc sống." }, { label: 'Mẹo dễ dàng', text: "Chỉ xây dựng **'cơ bắp tìm kiếm lối tắt.'** Bất lực khi cần kỹ năng thực sự." } ] },
-                ja: { type: 'conclusion', title: "どんな「脳の筋肉」を鍛えていますか？", items: [ { label: '正攻法の努力', text: "脳の**「誠実さと問題解決の筋肉」**を鍛えます。生涯役立つ丈夫な資産になります。" }, { label: '手っ取り早い要領', text: "脳の**「近道探索の筋肉」**だけを鍛えます。本当に実力が必要な時には無力です。" } ] },
-                zh: { type: 'conclusion', title: "你在锻炼哪一种“大脑肌肉”？", items: [ { label: '正规的努力', text: "锻炼大脑的**“勤奋与解决问题的肌肉”**。一生受用的宝贵资产。" }, { label: '简单的技巧', text: "只锻炼**“寻找捷径的肌肉”**。在需要真正技能时毫无用处。" } ] }
+                ko: { type: 'text', content: "이 신호가 반복되면, 그 '손쉬운 방법'은 우리 뇌에 <strong>'습관 회로'</strong>로 저장됩니다.<br><br>그러면 다음번에 비슷한 문제 상황을 만났을 때, '정석대로 노력해야지'라고 생각하기도 전에, 뇌가 먼저 자동적으로 '지난번 그 쉬운 방법 없나?' 하고 <strong>지름길부터 찾게 됩니다.</strong>" },
+                en: { type: 'text', content: "When this signal is repeated, that 'easy method' gets stored in our brain as a <strong>'Habit Loop.'</strong><br><br>Then, next time we face a similar problem, before we can even consciously think, our brain automatically starts <strong>looking for that shortcut first.</strong>" },
+                vi: { type: 'text', content: "Khi tín hiệu này được lặp lại, 'phương pháp dễ dàng' đó sẽ được lưu trữ trong não chúng ta dưới dạng một <strong>'Vòng lặp Thói quen.'</strong><br><br>Sau đó, lần tới khi đối mặt với vấn đề tương tự, não của chúng ta sẽ tự động <strong>tìm kiếm lối tắt đó trước tiên</strong> mà không cần suy nghĩ có ý thức." },
+                ja: { type: 'text', content: "この信号が繰り返されると、その「簡単な方法」は脳に<strong>「習慣ループ」</strong>として保存されます。<br><br>すると次に似た問題に直面したとき、意識的に考える前に、脳が自動的に<strong>まずその近道を探し始めます。</strong>" },
+                zh: { type: 'text', content: "当这个信号重复出现时，那个“简单方法”就会以<strong>“习惯回路”</strong>的形式储存在我们的大脑中。<br><br>然后，下次我们面临类似问题时，甚至在我们有意识地思考之前，大脑就会自动<strong>首先寻找那条捷径。</strong>" }
             },
-            // Slide 8: Final Message
+            // 슬라이드 9: 결론
             {
-                ko: { type: 'final', content: "결과가 같아 보여도,<br>**여러분이 '선택한 과정'이 여러분의 뇌를 만듭니다.**<br><br>순간의 편함 대신, 평생 도움이 될 튼튼한 '뇌 근육'을 키우는 현명한 선택을 하길 바랍니다." },
-                en: { type: 'final', content: "Even if the results look the same,<br>**the 'process you choose' is what builds your brain.**<br><br>Choose wisely to build a strong 'brain muscle' that will last a lifetime, instead of choosing momentary convenience." },
-                vi: { type: 'final', content: "Ngay cả khi kết quả có vẻ giống nhau,<br>**chính 'quá trình bạn chọn' mới là thứ tạo nên bộ não của bạn.**<br><br>Hãy lựa chọn một cách khôn ngoan để xây dựng một 'cơ bắp não' khỏe mạnh sẽ tồn tại suốt đời, thay vì chọn sự tiện lợi nhất thời." },
-                ja: { type: 'final', content: "結果が同じに見えても、<br>**あなたが「選んだ過程」があなたの脳を作ります。**<br><br>一瞬の楽さの代わりに、生涯役立つ丈夫な「脳の筋肉」を育てる賢明な選択をしてください。" },
-                zh: { type: 'final', content: "即使结果看起来一样，<br>**你所“选择的过程”正在塑造你的大脑。**<br><br>请明智地选择，锻炼能让你终身受益的强大“大脑肌肉”，而不是选择一时的便利。" }
+                ko: { type: 'conclusion', title: "여러분은 어떤 '뇌의 근육'을 키우고 있나요?", items: [ { label: '정석적인 노력', text: "뇌의 <strong>'성실함과 문제 해결 근육'</strong>을 키웁니다. 평생 도움이 될 튼튼한 자산이 됩니다." }, { label: '손쉬운 요령', text: "뇌의 <strong>'지름길 탐색 근육'</strong>만 키웁니다. 진짜 실력이 필요한 순간에는 힘을 발휘하지 못합니다." } ] },
+                en: { type: 'conclusion', title: "What 'Brain Muscle' Are You Building?", items: [ { label: 'Standard Effort', text: "Builds the brain's <strong>'diligence and problem-solving muscle.'</strong> A strong asset for life." }, { label: 'Easy Tricks', text: "Only builds the <strong>'shortcut-seeking muscle.'</strong> Powerless when real skills are needed." } ] },
+                vi: { type: 'conclusion', title: "Bạn đang rèn luyện 'Cơ bắp Não' nào?", items: [ { label: 'Nỗ lực tiêu chuẩn', text: "Xây dựng <strong>'cơ bắp siêng năng và giải quyết vấn đề'</strong> của não. Một tài sản vững chắc cho cuộc sống." }, { label: 'Mẹo dễ dàng', text: "Chỉ xây dựng <strong>'cơ bắp tìm kiếm lối tắt.'</strong> Bất lực khi cần kỹ năng thực sự." } ] },
+                ja: { type: 'conclusion', title: "どんな「脳の筋肉」を鍛えていますか？", items: [ { label: '正攻法の努力', text: "脳の<strong>「誠実さと問題解決の筋肉」</strong>を鍛えます。生涯役立つ丈夫な資産になります。" }, { label: '手っ取り早い要領', text: "脳の<strong>「近道探索の筋肉」</strong>だけを鍛えます。本当に実力が必要な時には無力です。" } ] },
+                zh: { type: 'conclusion', title: "你在锻炼哪一种“大脑肌肉”？", items: [ { label: '正规的努力', text: "锻炼大脑的<strong>“勤奋与解决问题的肌肉”</strong>。一生受用的宝贵资产。" }, { label: '简单的技巧', text: "只锻炼<strong>“寻找捷径的肌肉”</strong>。在需要真正技能时毫无用处。" } ] }
+            },
+            // 슬라이드 10: 미끄러운 경사로 이론
+            {
+                ko: { type: 'theory', title: "'미끄러운 경사로' 이론", content: "한 번의 작은 부정적 행동은 '이 정도는 괜찮아'라는 생각을 만들고, 다음 행동에 대한 심리적 장벽을 허물어 버립니다. 이것이 바로 미끄러운 경사로의 시작입니다.<br><br>경사가 가팔라지기 전에, 첫 걸음에서 멈추는 것이 중요합니다. 좋은 습관을 지키는 가장 확실한 방법입니다." },
+                en: { type: 'theory', title: "The 'Slippery Slope' Theory", content: "One small negative action creates the thought, 'this much is okay,' and breaks down the psychological barrier for the next action. This is the beginning of the slippery slope.<br><br>It is crucial to stop at the very first step before the slope gets steeper. This is the surest way to maintain good habits." },
+                vi: { type: 'theory', title: "Lý thuyết 'Con dốc trơn trượt'", content: "Một hành động tiêu cực nhỏ sẽ tạo ra suy nghĩ, 'chừng này thì không sao,' và phá vỡ rào cản tâm lý cho hành động tiếp theo. Đây chính là khởi đầu của con dốc trơn trượt.<br><br>Điều quan trọng là phải dừng lại ngay từ bước đầu tiên trước khi con dốc trở nên dốc hơn. Đây là cách chắc chắn nhất để duy trì những thói quen tốt." },
+                ja: { type: 'theory', title: "「滑りやすい坂道」理論", content: "一度の小さな否定的な行動は、「これくらいなら大丈夫」という考えを生み出し、次の行動への心理的な壁を壊してしまいます。これが滑りやすい坂道の始まりです。<br><br>坂が急になる前に、最初の一歩で立ち止まることが重要です。良い習慣を守るための最も確実な方法です。" },
+                zh: { type: 'theory', title: "“滑坡”理论", content: "一个微小的负面行为会产生“这点小事没关系”的想法，并打破下一个行为的心理障碍。这就是滑坡的开始。<br><br>在坡度变得更陡之前，关键是要在第一步就停下来。这是保持良好习惯的最可靠方法。" }
+            },
+            // 슬라이드 11: 최종 메시지
+            {
+                ko: { type: 'final', content: "결과가 같아 보여도,<br><strong>여러분이 '선택한 과정'이 여러분의 뇌를 만듭니다.</strong><br><br>순간의 편함 대신, 평생 도움이 될 튼튼한 '뇌 근육'을 키우는 현명한 선택을 하길 바랍니다." },
+                en: { type: 'final', content: "Even if the results look the same,<br><strong>the 'process you choose' is what builds your brain.</strong><br><br>Choose wisely to build a strong 'brain muscle' that will last a lifetime, instead of choosing momentary convenience." },
+                vi: { type: 'final', content: "Ngay cả khi kết quả có vẻ giống nhau,<br><strong>chính 'quá trình bạn chọn' mới là thứ tạo nên bộ não của bạn.</strong><br><br>Hãy lựa chọn một cách khôn ngoan để xây dựng một 'cơ bắp não' khỏe mạnh sẽ tồn tại suốt đời, thay vì chọn sự tiện lợi nhất thời." },
+                ja: { type: 'final', content: "結果が同じに見えても、<br><strong>あなたが「選んだ過程」があなたの脳を作ります。</strong><br><br>一瞬の楽さの代わりに、生涯役立つ丈夫な「脳の筋肉」を育てる賢明な選択をしてください。" },
+                zh: { type: 'final', content: "即使结果看起来一样，<br><strong>你所“选择的过程”正在塑造你的大脑。</strong><br><br>请明智地选择，锻炼能让你终身受益的强大“大脑肌肉”，而不是选择一时的便利。" }
             }
         ];
 
@@ -172,114 +223,128 @@
         }
 
         function renderSlide() {
-            const koData = slideData[currentSlide]['ko'];
-            const selectedData = currentLang !== 'ko' ? slideData[currentSlide][currentLang] : null;
+            const dataForSlide = slideData[currentSlide];
+            const koData = dataForSlide.ko;
+            const selectedData = currentLang !== 'ko' ? dataForSlide[currentLang] : null;
+            
             let html = '';
             
             const contentDiv = document.createElement('div');
-            contentDiv.className = 'slide-content slide-hidden w-full h-full flex flex-col items-center justify-center text-center px-4';
+            contentDiv.className = 'slide-content slide-hidden w-full h-full flex flex-col items-center justify-center text-center';
             
-            switch (koData.type) {
-                case 'title':
-                    html = `<h1 class="text-4xl md:text-5xl font-bold text-slate-800 leading-tight">${koData.title}</h1>`;
-                    if (selectedData) {
-                        html += `<hr class="translation-divider my-4 md:my-6">`;
-                        html += `<h2 class="text-3xl md:text-4xl font-semibold text-slate-600 leading-tight">${selectedData.title}</h2>`;
-                    }
-                    break;
-                case 'text':
-                    html = `<p class="text-xl md:text-2xl text-slate-700 leading-relaxed">${koData.content}</p>`;
-                    if (selectedData) {
-                        html += `<hr class="translation-divider my-4 md:my-6">`;
-                        html += `<p class="text-lg md:text-xl text-slate-500 leading-relaxed">${selectedData.content}</p>`;
-                    }
-                    break;
-                case 'principle':
-                    html = `
-                        <div class="w-full">
-                            <h2 class="text-2xl md:text-3xl font-bold text-blue-600 mb-2">${koData.title}</h2>
-                            <p class="text-base md:text-lg text-slate-500 mb-6">${koData.subtitle}</p>
-                            <p class="text-lg md:text-xl text-slate-700 leading-relaxed">${koData.content}</p>
+            // 공통 렌더링 함수
+            const renderContent = (data, isPrimary) => {
+                if (!data) return ''; // 데이터가 없는 언어의 경우 빈 문자열 반환
+
+                const titleClass = isPrimary ? 'text-main-title' : 'text-sub-title';
+                const bodyClass = isPrimary ? 'text-body' : 'text-sub-body';
+                const principleTitleClass = isPrimary ? 'text-principle-title' : 'text-principle-title text-opacity-80';
+                const principleSubTitleClass = isPrimary ? 'text-principle-subtitle' : 'text-principle-subtitle text-opacity-80';
+                
+                switch (data.type) {
+                    case 'intro': // 특별한 첫 슬라이드
+                        return `<div class="w-full flex flex-col items-center justify-center gap-6">
+                            ${data.lines.map(line => `
+                                <div class="text-center">
+                                    <p class="text-description text-slate-500 mb-1">${line.lang}</p>
+                                    <h2 class="text-sub-title font-semibold text-slate-800">${line.text}</h2>
+                                </div>
+                            `).join('')}
                         </div>`;
-                    if (selectedData) {
-                        html += `<hr class="translation-divider my-4 md:my-6">`;
-                        html += `
+                    case 'title':
+                        return `<h1 class="${titleClass} font-bold text-slate-800 leading-tight">${data.title}</h1>`;
+                    case 'text':
+                        return `<p class="${bodyClass} text-slate-700 leading-relaxed">${data.content}</p>`;
+                    case 'principle':
+                        return `
+                            <div class="w-full">
+                                <h2 class="${principleTitleClass} font-bold text-blue-600 mb-2">${data.title}</h2>
+                                ${data.subtitle ? `<p class="${principleSubTitleClass} text-slate-500 mb-6">${data.subtitle}</p>` : ''}
+                                <p class="${bodyClass} text-slate-700">${data.content}</p>
+                            </div>`;
+                    case 'theory':
+                        const diagramHTML = `
+                            <div class="w-full max-w-[200px] md:max-w-[250px] mx-auto mb-4 text-slate-400">
+                                <svg viewBox="0 0 100 60" aria-hidden="true">
+                                    <line x1="0" y1="10" x2="20" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    <path d="M 18 10 Q 40 12, 95 55" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+                                    <g class="text-red-500" transform="translate(45 25) rotate(35)">
+                                        <circle cx="0" cy="-6" r="4" fill="currentColor"/>
+                                        <line x1="0" y1="-2" x2="0" y2="5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <line x1="0" y1="0" x2="-6" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <line x1="0" y1="0" x2="6" y2="-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <line x1="0" y1="5" x2="-5" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <line x1="0" y1="5" x2="5" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    </g>
+                                </svg>
+                            </div>
+                        `;
+                        return `
+                            <div class="w-full">
+                                <h2 class="${principleTitleClass} font-bold text-blue-600 mb-2">${data.title}</h2>
+                                ${isPrimary ? diagramHTML : ''}
+                                <p class="${bodyClass} text-slate-700 mt-4">${data.content}</p>
+                            </div>`;
+                    case 'diagram':
+                        return `
+                            <div class="w-full">
+                               <h2 class="text-principle-title font-bold text-slate-800 mb-6 md:mb-10">${data.title}</h2>
+                               <div class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4">
+                                    <div class="text-label bg-blue-100 text-blue-800 font-semibold p-3 md:p-4 rounded-lg">${data.steps[0]}</div>
+                                    <svg class="diagram-arrow w-6 h-6 md:w-8 md:h-8 transform md:rotate-0 rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                                    <div class="text-label bg-green-100 text-green-800 font-semibold p-3 md:p-4 rounded-lg">${data.steps[1]}</div>
+                                    <svg class="diagram-arrow w-6 h-6 md:w-8 md:h-8 transform md:rotate-0 rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                                    <div class="text-label bg-purple-100 text-purple-800 font-semibold p-3 md:p-4 rounded-lg">${data.steps[2]}</div>
+                               </div>
+                               <p class="text-description text-slate-600 mt-6 md:mt-10">${data.description}</p>
+                            </div>
+                        `;
+                    case 'comparison':
+                        return `
                         <div class="w-full">
-                            <h2 class="text-xl md:text-2xl font-bold text-blue-500 mb-2">${selectedData.title}</h2>
-                            <p class="text-sm md:text-base text-slate-400 mb-6">${selectedData.subtitle}</p>
-                            <p class="text-base md:text-lg text-slate-600 leading-relaxed">${selectedData.content}</p>
-                        </div>`;
-                    }
-                    break;
-                case 'comparison':
-                    html = `
-                        <div class="w-full">
-                            <h2 class="text-xl md:text-2xl font-semibold text-slate-800 mb-6">${koData.title}</h2>
-                            <div class="space-y-4 w-full max-w-2xl text-left text-base md:text-lg mx-auto">
-                                ${koData.items.map(item => `
-                                    <div class="bg-slate-50 p-4 rounded-lg">
+                            <h2 class="text-principle-title font-semibold text-slate-800 mb-6">${data.title}</h2>
+                            <div class="space-y-4 w-full max-w-2xl text-left mx-auto">
+                                ${data.items.map(item => `
+                                    <div class="text-label bg-slate-50 p-4 rounded-lg">
                                         <span class="font-bold text-blue-600">${item.label}:</span>
                                         <span class="text-slate-700">${item.text}</span>
                                     </div>
                                 `).join('')}
                             </div>
-                            <p class="mt-6 text-base md:text-lg text-slate-600 leading-relaxed">${koData.conclusion}</p>
+                            <p class="mt-6 text-body text-slate-600 leading-relaxed">${data.conclusion}</p>
                         </div>`;
-                    if (selectedData) {
-                        html += `<hr class="translation-divider my-4 md:my-6">`;
-                        html += `
+                    case 'conclusion':
+                        return `
                         <div class="w-full">
-                            <h2 class="text-lg md:text-xl font-semibold text-slate-600 mb-6">${selectedData.title}</h2>
-                            <div class="space-y-3 w-full max-w-2xl text-left text-sm md:text-base mx-auto">
-                                ${selectedData.items.map(item => `
-                                    <div class="bg-slate-50 p-3 rounded-lg">
-                                        <span class="font-bold text-blue-500">${item.label}:</span>
-                                        <span class="text-slate-600">${item.text}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <p class="mt-4 text-sm md:text-base text-slate-500 leading-relaxed">${selectedData.conclusion}</p>
-                        </div>`;
-                    }
-                    break;
-                case 'conclusion':
-                     html = `
-                        <div class="w-full">
-                            <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-8">${koData.title}</h2>
+                            <h2 class="text-principle-title font-bold text-slate-800 mb-8">${data.title}</h2>
                             <div class="flex flex-col md:flex-row gap-6 w-full max-w-3xl mx-auto">
-                                 ${koData.items.map(item => `
+                                 ${data.items.map(item => `
                                     <div class="flex-1 bg-slate-50 p-6 rounded-xl">
-                                        <h3 class="font-bold text-lg md:text-xl text-blue-600 mb-2">${item.label}</h3>
-                                        <p class="text-slate-600 text-base md:text-lg">${item.text}</p>
+                                        <h3 class="text-label font-bold text-blue-600 mb-2">${item.label}</h3>
+                                        <p class="text-description text-slate-600">${item.text}</p>
                                     </div>
                                 `).join('')}
                             </div>
                         </div>`;
-                    if (selectedData) {
-                        html += `<hr class="translation-divider my-4 md:my-6">`;
-                        html += `
-                        <div class="w-full">
-                            <h2 class="text-xl md:text-2xl font-bold text-slate-600 mb-6">${selectedData.title}</h2>
-                            <div class="flex flex-col md:flex-row gap-4 w-full max-w-3xl mx-auto">
-                                 ${selectedData.items.map(item => `
-                                    <div class="flex-1 bg-slate-50 p-4 rounded-xl">
-                                        <h3 class="font-bold text-base md:text-lg text-blue-500 mb-2">${item.label}</h3>
-                                        <p class="text-slate-500 text-sm md:text-base">${item.text}</p>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>`;
-                    }
-                    break;
-                case 'final':
-                    html = `<p class="text-2xl md:text-3xl text-slate-800 font-semibold leading-relaxed">${koData.content}</p>`;
-                    if (selectedData) {
-                        html += `<hr class="translation-divider my-4 md:my-6">`;
-                        html += `<p class="text-xl md:text-2xl text-slate-600 font-medium leading-relaxed">${selectedData.content}</p>`;
-                    }
-                    break;
+                    case 'final':
+                        return `<p class="text-sub-title text-slate-800 font-semibold leading-relaxed">${data.content}</p>`;
+                }
             }
-            
+
+            if (koData.type === 'intro') {
+                html = renderContent(koData, true);
+                langSelector.style.visibility = 'hidden'; // 첫 슬라이드에서는 언어 선택기 숨김
+            } else {
+                html += renderContent(koData, true);
+                if (selectedData) {
+                    const translatedHtml = renderContent(selectedData, false);
+                    html += `<hr class="translation-divider">`;
+                    html += `<div class="opacity-80">${translatedHtml}</div>`;
+                }
+                langSelector.style.visibility = 'visible'; // 다른 슬라이드에서는 표시
+            }
+
+
             contentDiv.innerHTML = html;
             
             if (slideContainer.firstElementChild) {
@@ -332,4 +397,5 @@
 
 </body>
 </html>
+
 
