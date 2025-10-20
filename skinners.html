@@ -233,8 +233,8 @@
             contentDiv.className = 'slide-content slide-hidden w-full h-full flex flex-col items-center justify-center text-center';
             
             // 공통 렌더링 함수
-            const renderContent = (data, isPrimary) => {
-                if (!data) return ''; // 데이터가 없는 언어의 경우 빈 문자열 반환
+            const renderContent = (data, isPrimary, showDiagram) => {
+                if (!data) return '';
 
                 const titleClass = isPrimary ? 'text-main-title' : 'text-sub-title';
                 const bodyClass = isPrimary ? 'text-body' : 'text-sub-body';
@@ -242,7 +242,7 @@
                 const principleSubTitleClass = isPrimary ? 'text-principle-subtitle' : 'text-principle-subtitle text-opacity-80';
                 
                 switch (data.type) {
-                    case 'intro': // 특별한 첫 슬라이드
+                    case 'intro':
                         return `<div class="w-full flex flex-col items-center justify-center gap-6">
                             ${data.lines.map(line => `
                                 <div class="text-center">
@@ -282,7 +282,7 @@
                         return `
                             <div class="w-full">
                                 <h2 class="${principleTitleClass} font-bold text-blue-600 mb-2">${data.title}</h2>
-                                ${isPrimary ? diagramHTML : ''}
+                                ${showDiagram ? diagramHTML : ''}
                                 <p class="${bodyClass} text-slate-700 mt-4">${data.content}</p>
                             </div>`;
                     case 'diagram':
@@ -332,14 +332,18 @@
             }
 
             if (koData.type === 'intro') {
-                html = renderContent(koData, true);
+                html = renderContent(koData, true, false);
                 langSelector.style.visibility = 'hidden'; // 첫 슬라이드에서는 언어 선택기 숨김
             } else {
-                html += renderContent(koData, true);
                 if (selectedData) {
-                    const translatedHtml = renderContent(selectedData, false);
+                    // 번역이 활성화된 경우: 번역본을 위(primary)로, 원문을 아래(secondary)로
+                    html += renderContent(selectedData, true, koData.type === 'theory');
                     html += `<hr class="translation-divider">`;
-                    html += `<div class="opacity-80">${translatedHtml}</div>`;
+                    const originalHtml = renderContent(koData, false, false);
+                    html += `<div class="opacity-80">${originalHtml}</div>`;
+                } else {
+                    // 한국어만 선택된 경우
+                    html += renderContent(koData, true, koData.type === 'theory');
                 }
                 langSelector.style.visibility = 'visible'; // 다른 슬라이드에서는 표시
             }
